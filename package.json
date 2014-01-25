@@ -1,0 +1,27 @@
+{ "name": "pimatic-shell-execute",
+  "description": "Plugin for executing shell commands",
+  "author": "Oliver Schneider <oliverschneider89+sweetpi@gmail.com> (http://sweetpi.de)",
+  "main": "shell-execute.coffee",
+  "files": [
+    "doc",
+    "shell-execute.coffee",
+    "README.md",
+    "device-config-shema.coffee",
+    "shell-execute-config-shema.coffee"
+  ],
+  "version": "0.5.0",
+  "homepage": "http://github.com/sweetpi/pimatic",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sweetpi/pimatic-shell-execute.git"
+  },
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "pimatic": "0.5.*"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}

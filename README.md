@@ -1,6 +1,9 @@
 pimatic shell execute plugin
 =======================
-This plugin let you define devices that execute shell commands. 
+This plugin let you define devices that execute shell commands. Additonal it allowes you
+to execute shell commands in rule actions. So you can define rules of the form:
+
+    if ... then execute "some command"
 
 Configuration
 -------------

@@ -13,6 +13,8 @@ module.exports = (env) ->
       conf.validate()
       @config = conf.get ""
 
+      @framework.ruleManager.addActionHandler(new ShellActionHandler())
+
     createDevice: (config) =>
       if config.class is "ShellSwitch" 
         @framework.registerDevice(new ShellSwitch config)
@@ -63,5 +65,32 @@ module.exports = (env) ->
         env.logger.error stderr if stderr.length isnt 0
         @_setState(state)
       )
+
+  class ShellActionHandler extends env.actions.ActionHandler
+    # ### executeAction()
+    ###
+    This function handles action in the form of `execute "some string"`
+    ###
+    executeAction: (actionString, simulate) =>
+      console.log actionString
+      # If the action string matches the expected format
+      matches = actionString.match ///
+        ^execute\s+"(.*)"$
+      ///
+      if matches?
+        # extract the command to execute.
+        command = matches[1]
+        # If we should just simulate
+        if simulate
+          # just return a promise fulfilled with a description about what we would do.
+          return Q __("would execute \"%s\"", command)
+        else
+          return exec(command).then( (streams) =>
+            stdout = streams[0]
+            stderr = streams[1]
+            env.logger.error stderr if stderr.length isnt 0
+            return __("executed \"%s\": %s", command, stdout)
+          )
+      else return null
 
   return plugin

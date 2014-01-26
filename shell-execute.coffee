@@ -8,7 +8,7 @@ module.exports = (env) ->
   class ShellExecute extends env.plugins.Plugin
 
     init: (app, @framework, config) =>
-      conf = convict require("./shell-execute-config-shema")
+      conf = convict require("./shell-execute-config-schema")
       conf.load config
       conf.validate()
       @config = conf.get ""
@@ -26,7 +26,7 @@ module.exports = (env) ->
   class ShellSwitch extends env.devices.PowerSwitch
 
     constructor: (config) ->
-      conf = convict require("./device-config-shema").ShellSwitch
+      conf = convict require("./device-config-schema").ShellSwitch
       conf.load config
       conf.validate()
       @config = conf.get ""

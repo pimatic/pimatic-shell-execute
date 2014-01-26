@@ -72,7 +72,6 @@ module.exports = (env) ->
     This function handles action in the form of `execute "some string"`
     ###
     executeAction: (actionString, simulate) =>
-      console.log actionString
       # If the action string matches the expected format
       matches = actionString.match ///
         ^execute\s+"(.*)"$

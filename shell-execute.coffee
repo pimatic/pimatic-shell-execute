@@ -26,7 +26,7 @@ module.exports = (env) ->
   class ShellSwitch extends env.devices.PowerSwitch
 
     constructor: (config) ->
-      conf = convict require("./devie-config-shema").ShellSwitch
+      conf = convict require("./device-config-shema").ShellSwitch
       conf.load config
       conf.validate()
       @config = conf.get ""

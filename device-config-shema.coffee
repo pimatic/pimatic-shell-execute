@@ -2,7 +2,7 @@
 
 # Defines a `node-convict` config-shema and exports it.
 module.exports =
-  ShellSwitch
+  ShellSwitch:
     onCommand:
       doc: "the command to execute for switching on"
       format: String

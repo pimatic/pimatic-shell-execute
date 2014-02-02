@@ -2,6 +2,7 @@ module.exports = (env) ->
   convict = env.require "convict"
   Q = env.require 'q'
   assert = env.require 'cassert'
+  M = env.matcher
 
   exec = Q.denodeify(require("child_process").exec)
 
@@ -72,24 +73,29 @@ module.exports = (env) ->
     This function handles action in the form of `execute "some string"`
     ###
     executeAction: (actionString, simulate) =>
-      # If the action string matches the expected format
-      matches = actionString.match ///
-        ^execute\s+"(.*)"$
-      ///
-      if matches?
-        # extract the command to execute.
-        command = matches[1]
-        # If we should just simulate
+      retVal = null
+      command = null
+      fullMatch = no
+
+      setCommand = (m, str) => command = str
+      onEnd = => fullMatch = yes
+      
+      M(actionString, context)
+        .match("execute ")
+        .matchString(setCommand)
+        .onEnd(onEnd)
+
+      if fullMatch
         if simulate
           # just return a promise fulfilled with a description about what we would do.
-          return Q __("would execute \"%s\"", command)
+          retVal = Q __("would execute \"%s\"", command)
         else
-          return exec(command).then( (streams) =>
+          retVal = exec(command).then( (streams) =>
             stdout = streams[0]
             stderr = streams[1]
             env.logger.error stderr if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout)
           )
-      else return null
+      return null
 
   return plugin

@@ -72,7 +72,7 @@ module.exports = (env) ->
     ###
     This function handles action in the form of `execute "some string"`
     ###
-    executeAction: (actionString, simulate) =>
+    executeAction: (actionString, simulate, context) =>
       retVal = null
       command = null
       fullMatch = no
@@ -96,6 +96,6 @@ module.exports = (env) ->
             env.logger.error stderr if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout)
           )
-      return null
+      return retVal
 
   return plugin

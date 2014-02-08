@@ -2,6 +2,7 @@ module.exports = (env) ->
   convict = env.require "convict"
   Q = env.require 'q'
   assert = env.require 'cassert'
+  _ = env.require 'lodash'
 
   exec = Q.denodeify(require("child_process").exec)
 
@@ -26,7 +27,7 @@ module.exports = (env) ->
   class ShellSwitch extends env.devices.PowerSwitch
 
     constructor: (config) ->
-      conf = convict require("./device-config-schema").ShellSwitch
+      conf = convict _.cloneDeep(require("./device-config-schema").ShellSwitch)
       conf.load config
       conf.validate()
       @config = conf.get ""

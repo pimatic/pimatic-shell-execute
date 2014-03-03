@@ -25,4 +25,17 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "offCommand": "echo off"
     }
 
+Or you can define a sensor which attributes gets updated with the output of shell command:
+
+    { 
+      "id": "temperature",
+      "name": "Room Temperature",
+      "class": "ShellSensor", 
+      "attributeName": "temperature",
+      "attributeType": "number",
+      "attributeUnit": "°C",
+      "command": "echo 42.0"
+    }
+
+
 For device configuration options see the [device-config-schema](device-config-schema.html) file.

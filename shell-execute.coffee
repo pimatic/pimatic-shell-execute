@@ -23,6 +23,7 @@ module.exports = (env) ->
         return true
       if config.class is "ShellSensor"
         @framework.registerDevice(new ShellSensor config)
+        return true
       return false
 
   plugin = new ShellExecute
@@ -96,21 +97,23 @@ module.exports = (env) ->
       @[getter] = () => if @attributeValue? then Q(@attributeValue) else @_getAttributeValue() 
 
       updateValue = =>
-        @_getAttributeValue().then( =>
+        @_getAttributeValue().finally( =>
           setTimeout(updateValue, @config.interval) 
         )
 
+      super()
       updateValue()
 
 
     _getAttributeValue: () ->
-      return exec(@command).then( (streams) =>
+      return exec(@config.command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
         if stderr.length isnt 0
           throw new Error("Error getting attribute vale for #{name}: #{stderr}")
         
         @attributeValue = stdout
+        if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
         @emit @config.attributeName, @attributeValue
         return @attributeValue
       )

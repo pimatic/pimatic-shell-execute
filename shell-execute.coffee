@@ -21,6 +21,8 @@ module.exports = (env) ->
       if config.class is "ShellSwitch" 
         @framework.registerDevice(new ShellSwitch config)
         return true
+      if config.class is "ShellSensor"
+        @framework.registerDevice(new ShellSensor config)
       return false
 
   plugin = new ShellExecute
@@ -66,6 +68,51 @@ module.exports = (env) ->
         stderr = streams[1]
         env.logger.error stderr if stderr.length isnt 0
         @_setState(state)
+      )
+
+  class ShellSensor extends env.devices.Sensor
+
+    constructor: (config) ->
+      conf = convict _.cloneDeep(require("./device-config-schema").ShellSensor)
+      conf.load config
+      conf.validate()
+      @config = conf.get ""
+
+      @name = config.name
+      @id = config.id
+
+      attributeName = @config.attributeName
+
+      @attributes = {}
+      @attributes[attributeName] =
+        description: attributeName
+        type: if @config.attributeType is "string" then String else Number
+
+      if @config.attributeUnit.length > 0
+        @attributes[attributeName].unit = @config.attributeUnit
+
+      # Create a getter for this attribute
+      getter = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
+      @[getter] = () => if @attributeValue? then Q(@attributeValue) else @_getAttributeValue() 
+
+      updateValue = =>
+        @_getAttributeValue().then( =>
+          setTimeout(updateValue, @config.interval) 
+        )
+
+      updateValue()
+
+
+    _getAttributeValue: () ->
+      return exec(@command).then( (streams) =>
+        stdout = streams[0]
+        stderr = streams[1]
+        if stderr.length isnt 0
+          throw new Error("Error getting attribute vale for #{name}: #{stderr}")
+        
+        @attributeValue = stdout
+        @emit @config.attributeName, @attributeValue
+        return @attributeValue
       )
 
   class ShellActionHandler extends env.actions.ActionHandler

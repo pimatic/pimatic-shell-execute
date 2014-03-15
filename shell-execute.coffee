@@ -15,7 +15,7 @@ module.exports = (env) ->
       conf.validate()
       @config = conf.get ""
 
-      @framework.ruleManager.addActionHandler(new ShellActionHandler())
+      @framework.ruleManager.addActionProvider(new ShellActionProvider())
 
     createDevice: (config) =>
       if config.class is "ShellSwitch" 
@@ -118,12 +118,12 @@ module.exports = (env) ->
         return @attributeValue
       )
 
-  class ShellActionHandler extends env.actions.ActionHandler
+  class ShellActionProvider extends env.actions.ActionProvider
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
     ###
-    executeAction: (actionString, simulate, context) =>
+    parseAction: (input, context) =>
       retVal = null
       command = null
       fullMatch = no
@@ -131,22 +131,37 @@ module.exports = (env) ->
       setCommand = (m, str) => command = str
       onEnd = => fullMatch = yes
       
-      M(actionString, context)
+      m = M(input, context)
         .match("execute ")
         .matchString(setCommand)
-        .onEnd(onEnd)
+      
+      matchCount = m.getMatchCount() 
 
-      if fullMatch
-        if simulate
-          # just return a promise fulfilled with a description about what we would do.
-          retVal = Q __("would execute \"%s\"", command)
-        else
-          retVal = exec(command).then( (streams) =>
-            stdout = streams[0]
-            stderr = streams[1]
-            env.logger.error stderr if stderr.length isnt 0
-            return __("executed \"%s\": %s", command, stdout)
-          )
-      return retVal
+      if matchCount is 1
+        match = m.getFullMatches()[0]
+        return {
+          token: match
+          nextInput: input.substring(match.length)
+          actionHandler: new ShellActionHandler(command)
+        }
+      else
+        return null
+
+  class ShellActionHandler extends env.actions.ActionHandler
+    # ### executeAction()
+    ###
+    This function handles action in the form of `execute "some string"`
+    ###
+    executeAction: (simulate) =>
+      if simulate
+        # just return a promise fulfilled with a description about what we would do.
+        return Q __("would execute \"%s\"", command)
+      else
+        return exec(command).then( (streams) =>
+          stdout = streams[0]
+          stderr = streams[1]
+          env.logger.error stderr if stderr.length isnt 0
+          return __("executed \"%s\": %s", command, stdout)
+        )
 
   return plugin

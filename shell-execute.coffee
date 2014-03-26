@@ -148,6 +148,8 @@ module.exports = (env) ->
         return null
 
   class ShellActionHandler extends env.actions.ActionHandler
+
+    constructor: (@command) ->
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
@@ -155,13 +157,13 @@ module.exports = (env) ->
     executeAction: (simulate) =>
       if simulate
         # just return a promise fulfilled with a description about what we would do.
-        return Q __("would execute \"%s\"", command)
+        return Q __("would execute \"%s\"", @command)
       else
-        return exec(command).then( (streams) =>
+        return exec(@command).then( (streams) =>
           stdout = streams[0]
           stderr = streams[1]
           env.logger.error stderr if stderr.length isnt 0
-          return __("executed \"%s\": %s", command, stdout)
+          return __("executed \"%s\": %s", @command, stdout)
         )
 
   return plugin

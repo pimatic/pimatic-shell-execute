@@ -119,21 +119,23 @@ module.exports = (env) ->
       )
 
   class ShellActionProvider extends env.actions.ActionProvider
+
+    constructor: -> (@framework)
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
     ###
     parseAction: (input, context) =>
       retVal = null
-      command = null
+      commandTokens = null
       fullMatch = no
 
-      setCommand = (m, str) => command = str
+      setCommand = (m, tokens) => commandTokens = tokens
       onEnd = => fullMatch = yes
       
       m = M(input, context)
         .match("execute ")
-        .matchString(setCommand)
+        .matchStringWithVars(setCommand)
       
       matchCount = m.getMatchCount() 
 
@@ -142,28 +144,30 @@ module.exports = (env) ->
         return {
           token: match
           nextInput: input.substring(match.length)
-          actionHandler: new ShellActionHandler(command)
+          actionHandler: new ShellActionHandler(@framework, commandTokens)
         }
       else
         return null
 
   class ShellActionHandler extends env.actions.ActionHandler
 
-    constructor: (@command) ->
+    constructor: (@framework, @commandTokens) ->
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
     ###
     executeAction: (simulate) =>
-      if simulate
-        # just return a promise fulfilled with a description about what we would do.
-        return Q __("would execute \"%s\"", @command)
-      else
-        return exec(@command).then( (streams) =>
-          stdout = streams[0]
-          stderr = streams[1]
-          env.logger.error stderr if stderr.length isnt 0
-          return __("executed \"%s\": %s", @command, stdout)
-        )
+      @framework.variableManager.evaluateStringExpression(@commandTokens).then( (command) =>
+        if simulate
+          # just return a promise fulfilled with a description about what we would do.
+          return __("would execute \"%s\"", command)
+        else
+          return exec(command).then( (streams) =>
+            stdout = streams[0]
+            stderr = streams[1]
+            env.logger.error stderr if stderr.length isnt 0
+            return __("executed \"%s\": %s", command, stdout)
+          )
+      )
 
   return plugin

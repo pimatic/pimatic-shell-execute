@@ -15,7 +15,7 @@ module.exports = (env) ->
       conf.validate()
       @config = conf.get ""
 
-      @framework.ruleManager.addActionProvider(new ShellActionProvider())
+      @framework.ruleManager.addActionProvider(new ShellActionProvider(@framework))
 
     createDevice: (config) =>
       if config.class is "ShellSwitch" 
@@ -120,7 +120,7 @@ module.exports = (env) ->
 
   class ShellActionProvider extends env.actions.ActionProvider
 
-    constructor: -> (@framework)
+    constructor: (@framework) -> 
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`

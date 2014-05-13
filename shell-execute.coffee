@@ -137,9 +137,7 @@ module.exports = (env) ->
         .match("execute ")
         .matchStringWithVars(setCommand)
       
-      matchCount = m.getMatchCount() 
-
-      if matchCount is 1
+      if m.hadMatch()
         match = m.getFullMatch()
         return {
           token: match

@@ -87,7 +87,7 @@ module.exports = (env) ->
       @attributes = {}
       @attributes[attributeName] =
         description: attributeName
-        type: if @config.attributeType is "string" then String else Number
+        type: @config.attributeType
 
       if @config.attributeUnit.length > 0
         @attributes[attributeName].unit = @config.attributeUnit
@@ -103,7 +103,6 @@ module.exports = (env) ->
 
       super()
       updateValue()
-
 
     _getAttributeValue: () ->
       return exec(@config.command).then( (streams) =>

@@ -17,28 +17,25 @@ module.exports = (env) ->
 
       @framework.ruleManager.addActionProvider(new ShellActionProvider(@framework))
 
-    createDevice: (config) =>
-      if config.class is "ShellSwitch" 
-        @framework.registerDevice(new ShellSwitch config)
-        return true
-      if config.class is "ShellSensor"
-        @framework.registerDevice(new ShellSensor config)
-        return true
-      return false
+      deviceConfigDef = require("./device-config-schema")
 
-  plugin = new ShellExecute
+      @framework.registerDeviceClass("ShellSwitch", {
+        configDef: deviceConfigDef.ShellSwitch, 
+        createCallback: (config) => return new ShellSwitch(config)
+      })
+
+      @framework.registerDeviceClass("ShellSensor", {
+        configDef: deviceConfigDef.ShellSensor, 
+        createCallback: (config) => return new ShellSensor(config)
+      })
+
+  plugin = new ShellExecute()
 
   class ShellSwitch extends env.devices.PowerSwitch
 
-    constructor: (config) ->
-      conf = convict _.cloneDeep(require("./device-config-schema").ShellSwitch)
-      conf.load config
-      conf.validate()
-      @config = conf.get ""
-
+    constructor: (@config) ->
       @name = config.name
       @id = config.id
-
       super()
 
     getState: () ->
@@ -73,12 +70,7 @@ module.exports = (env) ->
 
   class ShellSensor extends env.devices.Sensor
 
-    constructor: (config) ->
-      conf = convict _.cloneDeep(require("./device-config-schema").ShellSensor)
-      conf.load config
-      conf.validate()
-      @config = conf.get ""
-
+    constructor: (@config) ->
       @name = config.name
       @id = config.id
 

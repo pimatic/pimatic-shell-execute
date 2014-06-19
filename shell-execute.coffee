@@ -86,17 +86,19 @@ module.exports = (env) ->
 
       # Create a getter for this attribute
       getter = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
-      @[getter] = () => if @attributeValue? then Q(@attributeValue) else @_getAttributeValue() 
+      @[getter] = () => 
+        if @attributeValue? then Q(@attributeValue) 
+        else @_getUpdatedAttributeValue() 
 
       updateValue = =>
-        @_getAttributeValue().finally( =>
+        @_getUpdatedAttributeValue().finally( =>
           setTimeout(updateValue, @config.interval) 
         )
 
       super()
       updateValue()
 
-    _getAttributeValue: () ->
+    _getUpdatedAttributeValue: () ->
       return exec(@config.command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]

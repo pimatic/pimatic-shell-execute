@@ -23,7 +23,7 @@ module.exports =
     attributeType:
       description: "the type of the attribute the sensor is monitoring"
       type: "string"
-      oneOf: ["string", "number"]
+      enum: ["string", "number"]
       default: "string"
     attributeUnit:
       description: "this unit of the attribute the sensor is monitoring"

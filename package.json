@@ -15,6 +15,7 @@
     "type": "git",
     "url": "git://github.com/pimatic/pimatic-shell-execute.git"
   },
+  "configSchema": "shell-execute-config-schema.coffee",
   "dependencies": {
   },
   "peerDependencies": {

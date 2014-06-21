@@ -1,4 +1,5 @@
-# #shell-execute configuration options
-
-# Defines a `node-convict` config-schema and exports it.
-module.exports = {}
+module.exports = {
+  title: "shell execute config options"
+  type: "object"
+  properties: {}
+}

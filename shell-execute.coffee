@@ -1,5 +1,4 @@
 module.exports = (env) ->
-  convict = env.require "convict"
   Q = env.require 'q'
   assert = env.require 'cassert'
   _ = env.require 'lodash'
@@ -9,11 +8,7 @@ module.exports = (env) ->
 
   class ShellExecute extends env.plugins.Plugin
 
-    init: (app, @framework, config) =>
-      conf = convict require("./shell-execute-config-schema")
-      conf.load config
-      conf.validate()
-      @config = conf.get ""
+    init: (app, @framework, @config) =>
 
       @framework.ruleManager.addActionProvider(new ShellActionProvider(@framework))
 

@@ -1,10 +1,10 @@
 module.exports = (env) ->
-  Q = env.require 'q'
+  Promise = env.require 'bluebird'
   assert = env.require 'cassert'
   _ = env.require 'lodash'
   M = env.matcher
 
-  exec = Q.denodeify(require("child_process").exec)
+  exec = Promise.promisify(require("child_process").exec)
 
   class ShellExecute extends env.plugins.Plugin
 
@@ -34,7 +34,7 @@ module.exports = (env) ->
       super()
 
     getState: () ->
-      if @_state? then return Q @_state
+      if @_state? then return Promise.resolve @_state
 
       return exec(@config.getStateCommand).then( (streams) =>
         stdout = streams[0]
@@ -43,10 +43,10 @@ module.exports = (env) ->
         switch stdout
           when "on"
             @_state = on
-            return Q @_state
+            return Promise.resolve @_state
           when "off"
             @_state = off
-            return Q @_state
+            return Promise.resolve @_state
           else 
             env.logger.error stderr
             throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
@@ -82,7 +82,7 @@ module.exports = (env) ->
       # Create a getter for this attribute
       getter = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
       @[getter] = () => 
-        if @attributeValue? then Q(@attributeValue) 
+        if @attributeValue? then Promise.resolve(@attributeValue) 
         else @_getUpdatedAttributeValue() 
 
       updateValue = =>

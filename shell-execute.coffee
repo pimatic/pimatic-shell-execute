@@ -14,12 +14,12 @@ module.exports = (env) ->
 
       deviceConfigDef = require("./device-config-schema")
 
-      @framework.registerDeviceClass("ShellSwitch", {
+      @framework.deviceManager.registerDeviceClass("ShellSwitch", {
         configDef: deviceConfigDef.ShellSwitch, 
         createCallback: (config) => return new ShellSwitch(config)
       })
 
-      @framework.registerDeviceClass("ShellSensor", {
+      @framework.deviceManager.registerDeviceClass("ShellSensor", {
         configDef: deviceConfigDef.ShellSensor, 
         createCallback: (config) => return new ShellSensor(config)
       })

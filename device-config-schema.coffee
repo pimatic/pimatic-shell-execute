@@ -4,6 +4,7 @@ module.exports = {
   ShellSwitch: {
     title: "ShellSwitch config options"
     type: "object"
+    extensions: ["xConfirm", "xLink", "xOnLabel", "xOffLabel"]
     properties:
       onCommand:
         description: "the command to execute for switching on"
@@ -19,6 +20,7 @@ module.exports = {
   ShellSensor: {
     title: "ShellSensor config options"
     type: "object"
+    extensions: ["xLink", "xPresentLabel", "xAbsentLabel"]
     properties:
       attributeName:
         description: "the name of the attribute the sensor is monitoring"

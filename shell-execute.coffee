@@ -100,7 +100,7 @@ module.exports = (env) ->
         if stderr.length isnt 0
           throw new Error("Error getting attribute vale for #{name}: #{stderr}")
         
-        @attributeValue = stdout
+        @attributeValue = stdout.trim()
         if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
         @emit @config.attributeName, @attributeValue
         return @attributeValue

@@ -1,4 +1,5 @@
-{ "name": "pimatic-shell-execute",
+{
+  "name": "pimatic-shell-execute",
   "description": "Plugin for executing shell commands",
   "author": "Oliver Schneider <oliverschneider89+sweetpi@gmail.com> (http://sweetpi.de)",
   "main": "shell-execute.coffee",
@@ -9,15 +10,14 @@
     "device-config-schema.coffee",
     "shell-execute-config-schema.coffee"
   ],
-  "version": "0.8.1",
+  "version": "0.8.2",
   "homepage": "http://github.com/pimatic/pimatic",
   "repository": {
     "type": "git",
     "url": "git://github.com/pimatic/pimatic-shell-execute.git"
   },
   "configSchema": "shell-execute-config-schema.coffee",
-  "dependencies": {
-  },
+  "dependencies": {},
   "peerDependencies": {
     "pimatic": "0.8.*"
   },

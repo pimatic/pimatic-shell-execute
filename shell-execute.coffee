@@ -31,20 +31,29 @@ module.exports = (env) ->
     constructor: (@config) ->
       @name = config.name
       @id = config.id
+
+      updateValue = =>
+        if @config.interval > 0
+          @getState().finally( =>
+            setTimeout(updateValue, @config.interval) 
+          )
+
       super()
-
+      updateValue()
+        
     getState: () ->
-      if @_state? then return Promise.resolve @_state
-
       return exec(@config.getStateCommand).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
         stdout = stdout.trim()
+        
         switch stdout
           when "on"
+            @_setState(on)
             @_state = on
             return Promise.resolve @_state
           when "off"
+            @_setState(off)
             @_state = off
             return Promise.resolve @_state
           else 
@@ -62,7 +71,7 @@ module.exports = (env) ->
         env.logger.error stderr if stderr.length isnt 0
         @_setState(state)
       )
-
+  
   class ShellSensor extends env.devices.Sensor
 
     constructor: (@config) ->

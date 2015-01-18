@@ -15,7 +15,11 @@ module.exports = {
       getStateCommand:
         description: "the command to execute to get current state"
         type: "string"
-        default: "echo off"     
+        default: "echo off" 
+      interval:
+        description: "the time in ms, the command gets executed to get a new sensor value"
+        type: "number"
+        default: 0
   }
   ShellSensor: {
     title: "ShellSensor config options"

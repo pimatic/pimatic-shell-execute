@@ -17,7 +17,7 @@ module.exports = {
         type: "string"
         default: "echo off" 
       interval:
-        description: "the time in ms, the command gets executed to get a new sensor value"
+        description: "the time in ms, the command gets executed to get the actual state. If 0 then the state will not updated automatically."
         type: "number"
         default: 0
   }

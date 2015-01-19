@@ -22,7 +22,9 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "name": "Lamp",
       "class": "ShellSwitch", 
       "onCommand": "echo on",
-      "offCommand": "echo off"
+      "offCommand": "echo off",
+      "getStateCommand": "echo off"
+      "interval": "0"
     }
 
 Or you can define a sensor which attributes gets updated with the output of shell command:

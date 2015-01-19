@@ -23,9 +23,12 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "class": "ShellSwitch", 
       "onCommand": "echo on",
       "offCommand": "echo off",
-      "getStateCommand": "echo off"
+      "getStateCommand": "echo off",
       "interval": "0"
     }
+
+If the `interval` options is greater then 0 then the `getStateCommmand` is executed in this ms interval to
+update the state of the switch. 
 
 Or you can define a sensor which attributes gets updated with the output of shell command:
 

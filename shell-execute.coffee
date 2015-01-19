@@ -161,7 +161,7 @@ module.exports = (env) ->
             stdout = streams[0]
             stderr = streams[1]
             env.logger.error stderr if stderr.length isnt 0
-            return __("executed \"%s\": %s", command, stdout)
+            return __("executed \"%s\": %s", command, stdout.trim())
           )
       )
 

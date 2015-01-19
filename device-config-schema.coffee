@@ -15,7 +15,7 @@ module.exports = {
       getStateCommand:
         description: "the command to execute to get current state"
         type: "string"
-        default: "echo off" 
+        default: "echo false" 
       interval:
         description: "the time in ms, the command gets executed to get the actual state. If 0 then the state will not updated automatically."
         type: "number"

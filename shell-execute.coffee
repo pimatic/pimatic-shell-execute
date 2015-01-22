@@ -48,11 +48,11 @@ module.exports = (env) ->
         stdout = stdout.trim()
         
         switch stdout
-          when "on", "true"
+          when "on", "true", "1", "t", "o"
             @_setState(on)
             @_state = on
             return Promise.resolve @_state
-          when "off", "false"
+          when "off", "false", "0", "f"
             @_setState(off)
             @_state = off
             return Promise.resolve @_state

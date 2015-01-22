@@ -13,11 +13,17 @@ module.exports = {
         description: "the command to execute for switching off"
         type: "string"
       getStateCommand:
-        description: "the command to execute to get current state. Can return on/off, true/false as string"
+        description: "
+          the command to execute to get current state. 
+          Can return on/off, true/false or 1/0 as string
+        "
         type: "string"
         default: "echo false" 
       interval:
-        description: "the time in ms, the command gets executed to get the actual state. If 0 then the state will not updated automatically."
+        description: "
+          the time in ms, the command gets executed to get the actual state. 
+          If 0 then the state will not updated automatically.
+        "
         type: "number"
         default: 0
   }

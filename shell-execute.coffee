@@ -88,6 +88,9 @@ module.exports = (env) ->
       if @config.attributeUnit.length > 0
         @attributes[attributeName].unit = @config.attributeUnit
 
+      if @config.discrete?
+        @attributes[attributeName].discrete = @config.discrete
+
       # Create a getter for this attribute
       getter = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
       @[getter] = () => 

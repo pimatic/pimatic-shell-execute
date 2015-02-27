@@ -45,6 +45,11 @@ module.exports = {
         description: "this unit of the attribute the sensor is monitoring"
         type: "string"
         default: ""
+      discrete:
+        description: "
+          Should be set to true if the value does not change continuously over time.
+        "
+        type: "boolean"
       command:
         description: "the command to execute and read the attribute value from stdout"
         type: "string"

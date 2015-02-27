@@ -23,7 +23,7 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "class": "ShellSwitch", 
       "onCommand": "echo on",
       "offCommand": "echo off",
-      "getStateCommand": "echo false"
+      "getStateCommand": "echo false",
       "interval": "0"
     }
 

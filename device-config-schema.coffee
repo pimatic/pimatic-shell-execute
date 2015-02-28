@@ -50,6 +50,7 @@ module.exports = {
           Should be set to true if the value does not change continuously over time.
         "
         type: "boolean"
+        required: false
       command:
         description: "the command to execute and read the attribute value from stdout"
         type: "string"

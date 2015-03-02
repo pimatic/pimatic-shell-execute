@@ -1,6 +1,6 @@
 pimatic shell execute plugin
 =======================
-This plugin let you define devices that execute shell commands. Additonal it allowes you
+This plugin let you define devices that execute shell commands. Additonally it allows you
 to execute shell commands in rule actions. So you can define rules of the form:
 
     if ... then execute "some command"
@@ -27,7 +27,7 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "interval": "0"
     }
 
-If the `interval` options is greater then 0 then the `getStateCommmand` is executed in this ms interval to
+If the `interval` option is greater than 0 then the `getStateCommmand` is executed in this ms interval to
 update the state of the switch. 
 
 Or you can define a sensor which attributes gets updated with the output of shell command:
@@ -85,4 +85,4 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
       "interval": 60000
     }
 
-For device configuration options see the [device-config-schema](device-config-schema.html) file.
+For device configuration options see the [device-config-schema](device-config-schema.coffee) file.

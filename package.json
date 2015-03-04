@@ -10,7 +10,7 @@
     "device-config-schema.coffee",
     "shell-execute-config-schema.coffee"
   ],
-  "version": "0.8.8",
+  "version": "0.8.9",
   "homepage": "http://github.com/pimatic/pimatic",
   "repository": {
     "type": "git",

@@ -5,6 +5,7 @@ module.exports = (env) ->
   M = env.matcher
 
   exec = Promise.promisify(require("child_process").exec)
+  settled = (promise) -> Promise.settle([promise])
 
   class ShellExecute extends env.plugins.Plugin
 
@@ -23,6 +24,14 @@ module.exports = (env) ->
         configDef: deviceConfigDef.ShellSensor, 
         createCallback: (config) => return new ShellSensor(config)
       })
+
+      if @config.sequential
+        realExec = exec
+        lastAction = Promise.resolve()
+        exec = (command) ->
+          lastAction = settled(lastAction).then( -> realExec(command) )
+          return lastAction
+
 
   plugin = new ShellExecute()
 

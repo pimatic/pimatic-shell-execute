@@ -13,6 +13,12 @@ You can load the plugin by editing your `config.json` to include:
        "plugin": "shell-execute"
     }
 
+Shell commands are executed parallel by default. With the optional boolean attribute `sequential`set to `true`shell commands are executed sequentially.
+
+    { 
+       "plugin": "shell-execute",
+       "sequential': true
+    }
 
 Devices can be defined by adding them to the `devices` section in the config file.
 Set the `class` attribute to `ShellSwitch`. For example:

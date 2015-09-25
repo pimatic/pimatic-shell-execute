@@ -88,7 +88,7 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
       "interval": 60000
     }
 
-### ShellSensor Device
+### ShellPresenceSensor Device
 
 You can define a presence sensor whose state gets updated with the output of shell command:
 

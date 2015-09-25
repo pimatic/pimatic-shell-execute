@@ -30,7 +30,7 @@ module.exports = {
   ShellSensor: {
     title: "ShellSensor config options"
     type: "object"
-    extensions: ["xLink", "xPresentLabel", "xAbsentLabel"]
+    extensions: ["xLink"]
     properties:
       attributeName:
         description: "the name of the attribute the sensor is monitoring"
@@ -59,5 +59,25 @@ module.exports = {
         description: "the time in ms, the command gets executed to get a new sensor value"
         type: "number"
         default: 5000
+  }
+  ShellPresenceSensor: {
+    title: "ShellPresenceSensor config options"
+    type: "object"
+    extensions: ["xLink", "xPresentLabel", "xAbsentLabel"]
+    properties:
+      command:
+        description: "
+          the command to execute to get the presence state.
+          Can return on/off, true/false or 1/0 as string
+        "
+        type: "string"
+        default: "echo false"
+      interval:
+        description: "
+          the time in ms, the command gets executed to get the actual state.
+          If 0 then the state will not updated automatically.
+        "
+        type: "number"
+        default: 0
   }
 }

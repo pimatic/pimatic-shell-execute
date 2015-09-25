@@ -1,7 +1,5 @@
 module.exports = (env) ->
   Promise = env.require 'bluebird'
-  assert = env.require 'cassert'
-  _ = env.require 'lodash'
   M = env.matcher
 
   exec = Promise.promisify(require("child_process").exec)
@@ -23,6 +21,11 @@ module.exports = (env) ->
       @framework.deviceManager.registerDeviceClass("ShellSensor", {
         configDef: deviceConfigDef.ShellSensor, 
         createCallback: (config) => return new ShellSensor(config)
+      })
+
+      @framework.deviceManager.registerDeviceClass("ShellPresenceSensor", {
+        configDef: deviceConfigDef.ShellPresenceSensor,
+        createCallback: (config) => return new ShellPresenceSensor(config)
       })
 
       if @config.sequential
@@ -72,7 +75,7 @@ module.exports = (env) ->
         
     changeStateTo: (state) ->
       if @state is state then return
-      # and execue it.
+      # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command).then( (streams) =>
         stdout = streams[0]
@@ -120,11 +123,44 @@ module.exports = (env) ->
         stderr = streams[1]
         if stderr.length isnt 0
           throw new Error("Error getting attribute vale for #{@name}: #{stderr}")
-        
+
         @attributeValue = stdout.trim()
         if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
         @emit @config.attributeName, @attributeValue
         return @attributeValue
+      )
+
+  class ShellPresenceSensor extends env.devices.PresenceSensor
+
+    constructor: (@config) ->
+      @name = config.name
+      @id = config.id
+
+      updateValue = =>
+        if @config.interval > 0
+          @getPresence().finally( =>
+            setTimeout(updateValue, @config.interval)
+          )
+
+      super()
+      updateValue()
+
+    getPresence: () ->
+      return exec(@config.command).then( (streams) =>
+        stdout = streams[0]
+        stderr = streams[1]
+        stdout = stdout.trim()
+
+        switch stdout
+          when "present", "true", "1", "t"
+            @_setPresence(yes)
+            return Promise.resolve yes
+          when "absent", "false", "0", "f"
+            @_setPresence(no)
+            return Promise.resolve no
+          else
+            env.logger.error stderr
+            throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
       )
 
   class ShellActionProvider extends env.actions.ActionProvider

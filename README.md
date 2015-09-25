@@ -1,6 +1,6 @@
 pimatic shell execute plugin
 =======================
-This plugin let you define devices that execute shell commands. Additonally it allows you
+This plugin let you define devices that execute shell commands. Additionally, it allows you
 to execute shell commands in rule actions. So you can define rules of the form:
 
     if ... then execute "some command"
@@ -13,6 +13,7 @@ You can load the plugin by editing your `config.json` to include:
        "plugin": "shell-execute"
     }
 
+### ShellSwitch Device
 
 Devices can be defined by adding them to the `devices` section in the config file.
 Set the `class` attribute to `ShellSwitch`. For example:
@@ -30,7 +31,9 @@ Set the `class` attribute to `ShellSwitch`. For example:
 If the `interval` option is greater than 0 then the `getStateCommmand` is executed in this ms interval to
 update the state of the switch. 
 
-Or you can define a sensor which attributes gets updated with the output of shell command:
+### ShellSensor Device
+
+You can define a sensor whose attribute gets updated with the output of shell command:
 
     { 
       "id": "temperature",
@@ -83,6 +86,17 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
       "attributeUnit": "°C",
       "command": "/opt/vc/bin/vcgencmd measure_temp | cut -d \"=\" -f2 | cut -d \"'\" -f1",
       "interval": 60000
+    }
+
+### ShellSensor Device
+
+You can define a presence sensor whose state gets updated with the output of shell command:
+
+    {
+      "id": "presence",
+      "name": "NGINX Server",
+      "class": "ShellPresenceSensor",
+      "command": "[[ `pgrep nginx` ]] && echo 1 || echo 0"
     }
 
 For device configuration options see the [device-config-schema](device-config-schema.coffee) file.

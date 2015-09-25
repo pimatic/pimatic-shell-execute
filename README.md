@@ -96,7 +96,7 @@ You can define a presence sensor whose state gets updated with the output of she
       "id": "presence",
       "name": "NGINX Server",
       "class": "ShellPresenceSensor",
-      "command": "[[ `pgrep nginx` ]] && echo 1 || echo 0"
+      "command": "pgrep nginx >/dev/null && echo 1 || echo 0"
     }
 
 For device configuration options see the [device-config-schema](device-config-schema.coffee) file.

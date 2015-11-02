@@ -15,17 +15,17 @@ module.exports = (env) ->
 
       @framework.deviceManager.registerDeviceClass("ShellSwitch", {
         configDef: deviceConfigDef.ShellSwitch, 
-        createCallback: (config) => return new ShellSwitch(config)
+        createCallback: (config, lastState) => return new ShellSwitch(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellSensor", {
         configDef: deviceConfigDef.ShellSensor, 
-        createCallback: (config) => return new ShellSensor(config)
+        createCallback: (config, lastState) => return new ShellSensor(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellPresenceSensor", {
         configDef: deviceConfigDef.ShellPresenceSensor,
-        createCallback: (config) => return new ShellPresenceSensor(config)
+        createCallback: (config, lastState) => return new ShellPresenceSensor(config, lastState)
       })
 
       if @config.sequential
@@ -40,9 +40,10 @@ module.exports = (env) ->
 
   class ShellSwitch extends env.devices.PowerSwitch
 
-    constructor: (@config) ->
+    constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
+      @_state = lastState?.state?.value or off
 
       updateValue = =>
         if @config.interval > 0
@@ -86,11 +87,12 @@ module.exports = (env) ->
   
   class ShellSensor extends env.devices.Sensor
 
-    constructor: (@config) ->
+    constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
 
       attributeName = @config.attributeName
+      @attributeValue = lastState?[attributeName]?.value
 
       @attributes = {}
       @attributes[attributeName] =
@@ -132,9 +134,10 @@ module.exports = (env) ->
 
   class ShellPresenceSensor extends env.devices.PresenceSensor
 
-    constructor: (@config) ->
+    constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
+      @_presence = lastState?.presence?.value or false
 
       updateValue = =>
         if @config.interval > 0

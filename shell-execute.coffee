@@ -70,7 +70,7 @@ module.exports = (env) ->
             @_state = off
             return Promise.resolve @_state
           else
-            env.logger.error "ShellSwitch: Error getting state for #{@name}: #{stderr}" if stderr.length isnt 0
+            env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
             throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
         )
         
@@ -81,7 +81,7 @@ module.exports = (env) ->
       return exec(command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
-        env.logger.error "ShellSwitch: Error setting state for #{@name}: #{stderr}" if stderr.length isnt 0
+        env.logger.error "ShellSwitch: stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       )
   
@@ -162,7 +162,7 @@ module.exports = (env) ->
             @_setPresence(no)
             return Promise.resolve no
           else
-            env.logger.error "ShellPresenceSensor: Error getting presence for #{@name}: #{stderr}" if stderr.length isnt 0
+            env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
             throw new Error "ShellPresenceSensor: unknown state=\"#{stdout}\"!"
       )
 
@@ -211,7 +211,7 @@ module.exports = (env) ->
           return exec(command).then( (streams) =>
             stdout = streams[0]
             stderr = streams[1]
-            env.logger.error "ShellActionHandler: Action command failed for #{@name}: #{stderr}" if stderr.length isnt 0
+            env.logger.error "ShellActionHandler: stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           )
       )

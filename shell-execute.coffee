@@ -69,8 +69,8 @@ module.exports = (env) ->
             @_setState(off)
             @_state = off
             return Promise.resolve @_state
-          else 
-            env.logger.error stderr
+          else
+            env.logger.error "ShellSwitch: Error getting state for #{@name}: #{stderr}" if stderr.length isnt 0
             throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
         )
         
@@ -81,7 +81,7 @@ module.exports = (env) ->
       return exec(command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
-        env.logger.error stderr if stderr.length isnt 0
+        env.logger.error "ShellSwitch: Error setting state for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       )
   
@@ -162,8 +162,8 @@ module.exports = (env) ->
             @_setPresence(no)
             return Promise.resolve no
           else
-            env.logger.error stderr
-            throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+            env.logger.error "ShellPresenceSensor: Error getting presence for #{@name}: #{stderr}" if stderr.length isnt 0
+            throw new Error "ShellPresenceSensor: unknown state=\"#{stdout}\"!"
       )
 
   class ShellActionProvider extends env.actions.ActionProvider
@@ -211,7 +211,7 @@ module.exports = (env) ->
           return exec(command).then( (streams) =>
             stdout = streams[0]
             stderr = streams[1]
-            env.logger.error stderr if stderr.length isnt 0
+            env.logger.error "ShellActionHandler: Action command failed for #{@name}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           )
       )

@@ -124,7 +124,7 @@ module.exports = (env) ->
         stdout = streams[0]
         stderr = streams[1]
         if stderr.length isnt 0
-          throw new Error("Error getting attribute vale for #{@name}: #{stderr}")
+          throw new Error("Error getting attribute value for #{@name}: #{stderr}")
 
         @attributeValue = stdout.trim()
         if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)

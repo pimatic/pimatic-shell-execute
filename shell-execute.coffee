@@ -69,8 +69,8 @@ module.exports = (env) ->
             @_setState(off)
             @_state = off
             return Promise.resolve @_state
-          else 
-            env.logger.error stderr
+          else
+            env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
             throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
         )
         
@@ -81,7 +81,7 @@ module.exports = (env) ->
       return exec(command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
-        env.logger.error stderr if stderr.length isnt 0
+        env.logger.error "ShellSwitch: stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       )
   
@@ -124,7 +124,7 @@ module.exports = (env) ->
         stdout = streams[0]
         stderr = streams[1]
         if stderr.length isnt 0
-          throw new Error("Error getting attribute vale for #{@name}: #{stderr}")
+          throw new Error("Error getting attribute value for #{@name}: #{stderr}")
 
         @attributeValue = stdout.trim()
         if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
@@ -162,8 +162,8 @@ module.exports = (env) ->
             @_setPresence(no)
             return Promise.resolve no
           else
-            env.logger.error stderr
-            throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+            env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
+            throw new Error "ShellPresenceSensor: unknown state=\"#{stdout}\"!"
       )
 
   class ShellActionProvider extends env.actions.ActionProvider
@@ -211,7 +211,7 @@ module.exports = (env) ->
           return exec(command).then( (streams) =>
             stdout = streams[0]
             stderr = streams[1]
-            env.logger.error stderr if stderr.length isnt 0
+            env.logger.error "ShellActionHandler: stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           )
       )

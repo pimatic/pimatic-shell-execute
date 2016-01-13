@@ -97,13 +97,18 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
 
 ### ShellPresenceSensor Device
 
-You can define a presence sensor whose state gets updated with the output of shell command:
+You can define a presence sensor whose state gets updated with the output of shell command. In some
+use cases the shell command may only detect an external device triggered a "present" event, but cannot 
+detect its absence. In such cases, when the`ShellPresenceSensor` is "present" it needs to be 
+automatically reset to "absent" after some time. For this you can set to `autoReset` property to true:
 
     {
       "id": "presence",
       "name": "NGINX Server",
       "class": "ShellPresenceSensor",
       "command": "pgrep nginx >/dev/null && echo 1 || echo 0"
+      "autoReset": false,
+      "resetTime": 10000
     }
 
 For device configuration options see the [device-config-schema](device-config-schema.coffee) file.

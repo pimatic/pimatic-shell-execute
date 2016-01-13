@@ -138,6 +138,7 @@ module.exports = (env) ->
       @name = config.name
       @id = config.id
       @_presence = lastState?.presence?.value or false
+      @_triggerAutoReset()
 
       updateValue = =>
         if @config.interval > 0
@@ -148,6 +149,14 @@ module.exports = (env) ->
       super()
       updateValue()
 
+    _triggerAutoReset: ->
+      if @config.autoReset and @_presence
+        clearTimeout(@_resetPresenceTimeout) if @_resetPresenceTimeout?
+        @_resetPresenceTimeout = setTimeout(
+          ( => @_setPresence no )
+          , @config.resetTime
+        )
+
     getPresence: () ->
       return exec(@config.command).then( (streams) =>
         stdout = streams[0]
@@ -156,10 +165,11 @@ module.exports = (env) ->
 
         switch stdout
           when "present", "true", "1", "t"
-            @_setPresence(yes)
+            @_setPresence yes
+            @_triggerAutoReset()
             return Promise.resolve yes
           when "absent", "false", "0", "f"
-            @_setPresence(no)
+            @_setPresence no
             return Promise.resolve no
           else
             env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0

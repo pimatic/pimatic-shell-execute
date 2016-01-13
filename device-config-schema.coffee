@@ -79,5 +79,16 @@ module.exports = {
         "
         type: "number"
         default: 0
+      autoReset:
+        description: "
+          if true and the the device is present, reset the state to absent
+          after resetTime has been reached.
+        "
+        type: "boolean"
+        default: false
+      resetTime:
+        description: "Time in milliseconds after that the presence value is reset to absent."
+        type: "integer"
+        default: 10000
   }
 }

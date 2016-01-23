@@ -18,7 +18,7 @@ module.exports = {
           Can return on/off, true/false or 1/0 as string
         "
         type: "string"
-        default: "echo false" 
+        required: false
       interval:
         description: "
           the time in ms, the command gets executed to get the actual state. 
@@ -79,5 +79,16 @@ module.exports = {
         "
         type: "number"
         default: 0
+      autoReset:
+        description: "
+          if true and the the device is present, reset the state to absent
+          after resetTime has been reached.
+        "
+        type: "boolean"
+        default: false
+      resetTime:
+        description: "Time in milliseconds after that the presence value is reset to absent."
+        type: "integer"
+        default: 10000
   }
 }

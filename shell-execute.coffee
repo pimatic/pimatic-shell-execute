@@ -52,26 +52,28 @@ module.exports = (env) ->
           )
 
       super()
-      updateValue()
+      if @config.getStateCommand?
+        updateValue()
         
     getState: () ->
-      return exec(@config.getStateCommand).then( (streams) =>
-        stdout = streams[0]
-        stderr = streams[1]
-        stdout = stdout.trim()
-        
-        switch stdout
-          when "on", "true", "1", "t", "o"
-            @_setState(on)
-            @_state = on
-            return Promise.resolve @_state
-          when "off", "false", "0", "f"
-            @_setState(off)
-            @_state = off
-            return Promise.resolve @_state
-          else
-            env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
-            throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+      if not @config.getStateCommand?
+        return Promise.resolve @_state
+      else
+        return exec(@config.getStateCommand).then( (streams) =>
+          stdout = streams[0]
+          stderr = streams[1]
+          stdout = stdout.trim()
+
+          switch stdout
+            when "on", "true", "1", "t", "o"
+              @_setState(on)
+              return Promise.resolve @_state
+            when "off", "false", "0", "f"
+              @_setState(off)
+              return Promise.resolve @_state
+            else
+              env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
         )
         
     changeStateTo: (state) ->
@@ -138,6 +140,7 @@ module.exports = (env) ->
       @name = config.name
       @id = config.id
       @_presence = lastState?.presence?.value or false
+      @_triggerAutoReset()
 
       updateValue = =>
         if @config.interval > 0
@@ -148,6 +151,14 @@ module.exports = (env) ->
       super()
       updateValue()
 
+    _triggerAutoReset: ->
+      if @config.autoReset and @_presence
+        clearTimeout(@_resetPresenceTimeout) if @_resetPresenceTimeout?
+        @_resetPresenceTimeout = setTimeout(
+          ( => @_setPresence no )
+          , @config.resetTime
+        )
+
     getPresence: () ->
       return exec(@config.command).then( (streams) =>
         stdout = streams[0]
@@ -156,10 +167,11 @@ module.exports = (env) ->
 
         switch stdout
           when "present", "true", "1", "t"
-            @_setPresence(yes)
+            @_setPresence yes
+            @_triggerAutoReset()
             return Promise.resolve yes
           when "absent", "false", "0", "f"
-            @_setPresence(no)
+            @_setPresence no
             return Promise.resolve no
           else
             env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0

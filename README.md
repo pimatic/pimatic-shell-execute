@@ -29,14 +29,14 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "id": "light",
       "name": "Lamp",
       "class": "ShellSwitch", 
-      "onCommand": "echo on",
-      "offCommand": "echo off",
-      "getStateCommand": "echo false",
-      "interval": "0"
+      "onCommand": "echo on > /home/pi/switchState",
+      "offCommand": "echo off > /home/pi/switchState",
+      "getStateCommand": "echo /home/pi/switchState",
+      "interval": 10000
     }
 
-If the `interval` option is greater than 0 then the `getStateCommmand` is executed in this ms interval to
-update the state of the switch. 
+If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 
+the `getStateCommmand` is executed in this ms interval to update the state of the switch. 
 
 ### ShellSensor Device
 
@@ -97,13 +97,18 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
 
 ### ShellPresenceSensor Device
 
-You can define a presence sensor whose state gets updated with the output of shell command:
+You can define a presence sensor whose state gets updated with the output of shell command. In some
+use cases the shell command may only detect an external device triggered a "present" event, but cannot 
+detect its absence. In such cases, when the`ShellPresenceSensor` is "present" it needs to be 
+automatically reset to "absent" after some time. For this you can set to `autoReset` property to true:
 
     {
       "id": "presence",
       "name": "NGINX Server",
       "class": "ShellPresenceSensor",
       "command": "pgrep nginx >/dev/null && echo 1 || echo 0"
+      "autoReset": false,
+      "resetTime": 10000
     }
 
 For device configuration options see the [device-config-schema](device-config-schema.coffee) file.

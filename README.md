@@ -29,14 +29,14 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "id": "light",
       "name": "Lamp",
       "class": "ShellSwitch", 
-      "onCommand": "echo on",
-      "offCommand": "echo off",
-      "getStateCommand": "echo false",
-      "interval": "0"
+      "onCommand": "echo on > /home/pi/switchState",
+      "offCommand": "echo off > /home/pi/switchState",
+      "getStateCommand": "echo /home/pi/switchState",
+      "interval": 10000
     }
 
-If the `interval` option is greater than 0 then the `getStateCommmand` is executed in this ms interval to
-update the state of the switch. 
+If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 
+the `getStateCommmand` is executed in this ms interval to update the state of the switch. 
 
 ### ShellSensor Device
 

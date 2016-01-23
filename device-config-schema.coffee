@@ -18,7 +18,7 @@ module.exports = {
           Can return on/off, true/false or 1/0 as string
         "
         type: "string"
-        default: "echo false" 
+        required: false
       interval:
         description: "
           the time in ms, the command gets executed to get the actual state. 

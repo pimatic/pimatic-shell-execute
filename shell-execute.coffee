@@ -52,26 +52,28 @@ module.exports = (env) ->
           )
 
       super()
-      updateValue()
+      if @config.getStateCommand?
+        updateValue()
         
     getState: () ->
-      return exec(@config.getStateCommand).then( (streams) =>
-        stdout = streams[0]
-        stderr = streams[1]
-        stdout = stdout.trim()
-        
-        switch stdout
-          when "on", "true", "1", "t", "o"
-            @_setState(on)
-            @_state = on
-            return Promise.resolve @_state
-          when "off", "false", "0", "f"
-            @_setState(off)
-            @_state = off
-            return Promise.resolve @_state
-          else
-            env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
-            throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+      if not @config.getStateCommand?
+        return Promise.resolve @_state
+      else
+        return exec(@config.getStateCommand).then( (streams) =>
+          stdout = streams[0]
+          stderr = streams[1]
+          stdout = stdout.trim()
+
+          switch stdout
+            when "on", "true", "1", "t", "o"
+              @_setState(on)
+              return Promise.resolve @_state
+            when "off", "false", "0", "f"
+              @_setState(off)
+              return Promise.resolve @_state
+            else
+              env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
         )
         
     changeStateTo: (state) ->

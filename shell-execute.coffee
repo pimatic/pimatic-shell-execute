@@ -74,6 +74,9 @@ module.exports = (env) ->
             else
               env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
               throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+        ).catch( (error) =>
+          env.logger.error "ShellSwitch: Command execution failed with exit code #{error.code} (#{error.cause})"
+          throw error
         )
         
     changeStateTo: (state) ->
@@ -85,6 +88,9 @@ module.exports = (env) ->
         stderr = streams[1]
         env.logger.error "ShellSwitch: stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
+      ).catch( (error) =>
+        env.logger.error "ShellSwitch: Command execution failed with exit code #{error.code} (#{error.cause})"
+        throw error
       )
   
   class ShellSensor extends env.devices.Sensor
@@ -114,9 +120,10 @@ module.exports = (env) ->
         else @_getUpdatedAttributeValue() 
 
       updateValue = =>
-        @_getUpdatedAttributeValue().finally( =>
-          setTimeout(updateValue, @config.interval) 
-        )
+        if @config.interval > 0
+          @_getUpdatedAttributeValue().finally( =>
+            setTimeout(updateValue, @config.interval)
+          )
 
       super()
       updateValue()
@@ -132,6 +139,9 @@ module.exports = (env) ->
         if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
         @emit @config.attributeName, @attributeValue
         return @attributeValue
+      ).catch( (error) =>
+        env.logger.error "ShellSensor: Command execution failed with exit code #{error.code} (#{error.cause})"
+        throw error
       )
 
   class ShellPresenceSensor extends env.devices.PresenceSensor
@@ -176,6 +186,9 @@ module.exports = (env) ->
           else
             env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
             throw new Error "ShellPresenceSensor: unknown state=\"#{stdout}\"!"
+      ).catch( (error) =>
+        env.logger.error "ShellPresenceSensor: Command execution failed with exit code #{error.code} (#{error.cause})"
+        throw error
       )
 
   class ShellActionProvider extends env.actions.ActionProvider
@@ -225,6 +238,9 @@ module.exports = (env) ->
             stderr = streams[1]
             env.logger.error "ShellActionHandler: stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
+          ).catch( (error) =>
+            env.logger.error "ShellActionHandler: Command execution failed with exit code #{error.code} (#{error.cause})"
+            throw error
           )
       )
 

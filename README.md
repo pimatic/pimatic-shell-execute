@@ -17,7 +17,7 @@ Commands are executed parallel by default. With the optional boolean attribute `
 
     { 
        "plugin": "shell-execute",
-       "sequential': true
+       "sequential": true
     }
 
 ### ShellSwitch Device
@@ -106,7 +106,7 @@ automatically reset to "absent" after some time. For this you can set to `autoRe
       "id": "presence",
       "name": "NGINX Server",
       "class": "ShellPresenceSensor",
-      "command": "pgrep nginx >/dev/null && echo 1 || echo 0"
+      "command": "pgrep nginx >/dev/null && echo 1 || echo 0",
       "autoReset": false,
       "resetTime": 10000
     }

@@ -1,9 +1,16 @@
 module.exports = (env) ->
   Promise = env.require 'bluebird'
+  commons = require('pimatic-plugin-commons')(env)
   M = env.matcher
 
   exec = Promise.promisify(require("child_process").exec)
   settled = (promise) -> Promise.settle([promise])
+
+  transformError = (error) =>
+    if error.code? and error.cause?
+      cause = String(error.cause).replace(/(\r\n|\n|\r)/gm," ").trim()
+      error = new Error "Command execution failed with exit code #{error.code} (#{cause})"
+    return error
 
   class ShellExecute extends env.plugins.Plugin
 
@@ -43,6 +50,7 @@ module.exports = (env) ->
     constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
+      @base = commons.base @, config.class
       @_state = lastState?.state?.value or off
 
       updateValue = =>
@@ -72,11 +80,10 @@ module.exports = (env) ->
               @_setState(off)
               return Promise.resolve @_state
             else
-              env.logger.error "ShellSwitch: stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
-              throw new Error "ShellSwitch: unknown state=\"#{stdout}\"!"
+              @base.error "stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "unknown state=\"#{stdout}\"!"
         ).catch( (error) =>
-          env.logger.error "ShellSwitch: Command execution failed with exit code #{error.code} (#{error.cause})"
-          throw error
+          @base.rejectWithErrorString Promise.reject, transformError(error)
         )
         
     changeStateTo: (state) ->
@@ -86,11 +93,10 @@ module.exports = (env) ->
       return exec(command).then( (streams) =>
         stdout = streams[0]
         stderr = streams[1]
-        env.logger.error "ShellSwitch: stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+        @base.error "stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       ).catch( (error) =>
-        env.logger.error "ShellSwitch: Command execution failed with exit code #{error.code} (#{error.cause})"
-        throw error
+        @base.rejectWithErrorString Promise.reject, transformError(error)
       )
   
   class ShellSensor extends env.devices.Sensor
@@ -98,6 +104,7 @@ module.exports = (env) ->
     constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
+      @base = commons.base @, config.class
 
       attributeName = @config.attributeName
       @attributeValue = lastState?[attributeName]?.value
@@ -140,8 +147,7 @@ module.exports = (env) ->
         @emit @config.attributeName, @attributeValue
         return @attributeValue
       ).catch( (error) =>
-        env.logger.error "ShellSensor: Command execution failed with exit code #{error.code} (#{error.cause})"
-        throw error
+        @base.rejectWithErrorString Promise.reject, transformError(error)
       )
 
   class ShellPresenceSensor extends env.devices.PresenceSensor
@@ -149,6 +155,8 @@ module.exports = (env) ->
     constructor: (@config, lastState) ->
       @name = config.name
       @id = config.id
+      @base = commons.base @, config.class
+
       @_presence = lastState?.presence?.value or false
       @_triggerAutoReset()
 
@@ -184,16 +192,15 @@ module.exports = (env) ->
             @_setPresence no
             return Promise.resolve no
           else
-            env.logger.error "ShellPresenceSensor: stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
-            throw new Error "ShellPresenceSensor: unknown state=\"#{stdout}\"!"
+            @base.error "stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
+            throw new Error "unknown state=\"#{stdout}\"!"
       ).catch( (error) =>
-        env.logger.error "ShellPresenceSensor: Command execution failed with exit code #{error.code} (#{error.cause})"
-        throw error
+        @base.rejectWithErrorString Promise.reject, transformError(error)
       )
 
   class ShellActionProvider extends env.actions.ActionProvider
 
-    constructor: (@framework) -> 
+    constructor: (@framework) ->
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
@@ -223,6 +230,8 @@ module.exports = (env) ->
   class ShellActionHandler extends env.actions.ActionHandler
 
     constructor: (@framework, @commandTokens) ->
+      @base = commons.base @, "ShellActionHandler"
+
     # ### executeAction()
     ###
     This function handles action in the form of `execute "some string"`
@@ -236,11 +245,10 @@ module.exports = (env) ->
           return exec(command).then( (streams) =>
             stdout = streams[0]
             stderr = streams[1]
-            env.logger.error "ShellActionHandler: stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
+            @base.error "stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           ).catch( (error) =>
-            env.logger.error "ShellActionHandler: Command execution failed with exit code #{error.code} (#{error.cause})"
-            throw error
+            @base.rejectWithErrorString Promise.reject, transformError(error)
           )
       )
 

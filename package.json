@@ -2,13 +2,15 @@
   "name": "pimatic-shell-execute",
   "description": "Plugin for executing shell commands",
   "author": "Oliver Schneider <oliverschneider89+sweetpi@gmail.com> (http://sweetpi.de)",
+  "license": "GPL-2.0",
   "main": "shell-execute.coffee",
   "files": [
     "doc",
     "shell-execute.coffee",
     "README.md",
     "device-config-schema.coffee",
-    "shell-execute-config-schema.coffee"
+    "shell-execute-config-schema.coffee",
+    "LICENSE"
   ],
   "version": "0.8.16",
   "homepage": "http://github.com/pimatic/pimatic",

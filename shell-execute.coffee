@@ -105,7 +105,7 @@ module.exports = (env) ->
     constructor: (@config, lastState) ->
       @name = @config.name
       @id = @config.id
-      @base = commons.base @, config.class
+      @base = commons.base @, @config.class
 
       attributeName = @config.attributeName
       @attributeValue = lastState?[attributeName]?.value
@@ -156,7 +156,7 @@ module.exports = (env) ->
     constructor: (@config, lastState) ->
       @name = @config.name
       @id = @config.id
-      @base = commons.base @,@ config.class
+      @base = commons.base @, @config.class
 
       @_presence = lastState?.presence?.value or false
       @_triggerAutoReset()

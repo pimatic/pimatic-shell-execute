@@ -12,13 +12,12 @@
     "shell-execute-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.8.17",
+  "version": "0.8.18",
   "homepage": "http://github.com/pimatic/pimatic",
   "repository": {
     "type": "git",
     "url": "git://github.com/pimatic/pimatic-shell-execute.git"
   },
-  "license": "GPL-2.0",
   "configSchema": "shell-execute-config-schema.coffee",
   "dependencies": {
     "pimatic-plugin-commons": "^0.8.7"

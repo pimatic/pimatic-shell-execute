@@ -48,9 +48,10 @@ module.exports = (env) ->
   class ShellSwitch extends env.devices.PowerSwitch
 
     constructor: (@config, lastState) ->
-      @name = config.name
-      @id = config.id
-      @base = commons.base @, config.class
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
       @_state = lastState?.state?.value or off
 
       updateValue = =>
@@ -102,8 +103,8 @@ module.exports = (env) ->
   class ShellSensor extends env.devices.Sensor
 
     constructor: (@config, lastState) ->
-      @name = config.name
-      @id = config.id
+      @name = @config.name
+      @id = @config.id
       @base = commons.base @, config.class
 
       attributeName = @config.attributeName
@@ -153,9 +154,9 @@ module.exports = (env) ->
   class ShellPresenceSensor extends env.devices.PresenceSensor
 
     constructor: (@config, lastState) ->
-      @name = config.name
-      @id = config.id
-      @base = commons.base @, config.class
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @,@ config.class
 
       @_presence = lastState?.presence?.value or false
       @_triggerAutoReset()

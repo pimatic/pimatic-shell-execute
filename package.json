@@ -18,12 +18,13 @@
     "type": "git",
     "url": "git://github.com/pimatic/pimatic-shell-execute.git"
   },
+  "license": "GPL-2.0",
   "configSchema": "shell-execute-config-schema.coffee",
   "dependencies": {
     "pimatic-plugin-commons": "^0.8.7"
   },
   "peerDependencies": {
-    "pimatic": "0.8.*"
+    "pimatic": ">=0.8.0 <0.9.0"
   },
   "engines": {
     "node": ">0.8.x",

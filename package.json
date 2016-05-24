@@ -20,7 +20,7 @@
   },
   "configSchema": "shell-execute-config-schema.coffee",
   "dependencies": {
-    "pimatic-plugin-commons": "^0.8.7"
+    "pimatic-plugin-commons": "^0.8.8"
   },
   "peerDependencies": {
     "pimatic": "0.9.*"

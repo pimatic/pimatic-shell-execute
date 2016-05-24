@@ -36,11 +36,11 @@ Set the `class` attribute to `ShellSwitch`. For example:
     }
 
 If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 
-the `getStateCommmand` is executed in this ms interval to update the state of the switch. 
+the `getStateCommand` is executed in this ms interval to update the state of the switch. 
 
 ### ShellSensor Device
 
-You can define a sensor whose attribute gets updated with the output of shell command:
+You can define a sensor device with an attribute which gets updated with the output of shell command:
 
     { 
       "id": "temperature",

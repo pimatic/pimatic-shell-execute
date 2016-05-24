@@ -24,7 +24,7 @@ module.exports = {
           the time in ms, the command gets executed to get the actual state. 
           If 0 then the state will not updated automatically.
         "
-        type: "number"
+        type: "integer"
         default: 0
   }
   ShellSensor: {
@@ -57,7 +57,7 @@ module.exports = {
         default: "echo value"
       interval:
         description: "the time in ms, the command gets executed to get a new sensor value"
-        type: "number"
+        type: "integer"
         default: 5000
   }
   ShellPresenceSensor: {
@@ -77,7 +77,7 @@ module.exports = {
           the time in ms, the command gets executed to get the actual state.
           If 0 then the state will not updated automatically.
         "
-        type: "number"
+        type: "integer"
         default: 0
       autoReset:
         description: "

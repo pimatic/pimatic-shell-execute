@@ -66,14 +66,19 @@ module.exports = (env) ->
 
       updateValue = =>
         if @config.interval > 0
+          @_updateValueTimeout = null
           @getState().finally( =>
-            setTimeout(updateValue, @config.interval) 
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
           )
 
       super()
       if @config.getStateCommand?
         updateValue()
-        
+
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      super()
+
     getState: () ->
       if not @config.getStateCommand?
         return Promise.resolve @_state
@@ -135,12 +140,17 @@ module.exports = (env) ->
 
       updateValue = =>
         if @config.interval > 0
+          @_updateValueTimeout = null
           @_getUpdatedAttributeValue().finally( =>
-            setTimeout(updateValue, @config.interval)
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
           )
 
       super()
       updateValue()
+
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      super()
 
     _getUpdatedAttributeValue: () ->
       return exec(@config.command).then( ({stdout, stderr}) =>
@@ -167,18 +177,27 @@ module.exports = (env) ->
 
       updateValue = =>
         if @config.interval > 0
+          @_updateValueTimeout = null
           @getPresence().finally( =>
-            setTimeout(updateValue, @config.interval)
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
           )
 
       super()
       updateValue()
 
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      clearTimeout @_resetPresenceTimeout if @_resetPresenceTimeout?
+      super()
+
     _triggerAutoReset: ->
       if @config.autoReset and @_presence
         clearTimeout(@_resetPresenceTimeout) if @_resetPresenceTimeout?
         @_resetPresenceTimeout = setTimeout(
-          ( => @_setPresence no )
+          ( () =>
+            @_setPresence no
+            @_resetPresenceTimeout = null
+          )
           , @config.resetTime
         )
 

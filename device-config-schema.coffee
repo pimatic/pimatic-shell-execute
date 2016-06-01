@@ -45,6 +45,10 @@ module.exports = {
         description: "this unit of the attribute the sensor is monitoring"
         type: "string"
         default: ""
+      attributeAcronym:
+        description: "this acronym of the attribute the sensor is monitoring"
+        type: "string"
+        default: ""
       discrete:
         description: "
           Should be set to true if the value does not change continuously over time.

@@ -49,6 +49,7 @@ You can define a sensor whose attribute gets updated with the output of shell co
       "attributeName": "temperature",
       "attributeType": "number",
       "attributeUnit": "°C",
+      "attributeAcronym": "Room",
       "command": "echo 42.0"
     }
 

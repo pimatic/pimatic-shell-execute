@@ -49,6 +49,7 @@ You can define a sensor device with an attribute which gets updated with the out
       "attributeName": "temperature",
       "attributeType": "number",
       "attributeUnit": "°C",
+      "attributeAcronym": "Room",
       "command": "echo 42.0"
     }
 

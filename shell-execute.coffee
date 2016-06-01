@@ -118,6 +118,9 @@ module.exports = (env) ->
       if @config.attributeUnit.length > 0
         @attributes[attributeName].unit = @config.attributeUnit
 
+      if @config.attributeAcronym.length > 0
+        @attributes[attributeName].acronym = @config.attributeAcronym
+
       if @config.discrete?
         @attributes[attributeName].discrete = @config.discrete
 

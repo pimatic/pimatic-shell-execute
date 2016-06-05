@@ -12,7 +12,7 @@
     "shell-execute-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.9.3",
+  "version": "0.9.4",
   "homepage": "http://github.com/pimatic/pimatic",
   "repository": {
     "type": "git",

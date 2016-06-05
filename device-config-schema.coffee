@@ -35,7 +35,6 @@ module.exports = {
       attributeName:
         description: "the name of the attribute the sensor is monitoring"
         type: "string"
-        default: ""
       attributeType:
         description: "the type of the attribute the sensor is monitoring"
         type: "string"

@@ -101,7 +101,7 @@ module.exports = (env) ->
         )
         
     changeStateTo: (state) ->
-      if @state is state then return
+      if @_state is state then return
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command).then( ({stdout, stderr}) =>

@@ -61,6 +61,7 @@ module.exports = (env) ->
       @name = @config.name
       @id = @config.id
       @base = commons.base @, @config.class
+      @forceExecution = @config.forceExecution
 
       @_state = lastState?.state?.value or off
 
@@ -101,7 +102,7 @@ module.exports = (env) ->
         )
         
     changeStateTo: (state) ->
-      if @_state is state then return Promise.resolve()
+      if @_state is state and not @forceExecution then return Promise.resolve()
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command).then( ({stdout, stderr}) =>

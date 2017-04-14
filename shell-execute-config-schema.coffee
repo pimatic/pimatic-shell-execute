@@ -9,4 +9,12 @@ module.exports = {
       "
       type: "boolean"
       default: false
+    shell:
+      description: "Shell to execute a command with. Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows"
+      type: "string"
+      required: false
+    cwd:
+      description: "Current working directory of the child process"
+      type: "string"
+      required: false
 }

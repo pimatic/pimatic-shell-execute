@@ -4,9 +4,9 @@ module.exports = (env) ->
   M = env.matcher
   child_process = require("child_process")
 
-  exec = (command) ->
+  exec = (command, options) ->
     return new Promise( (resolve, reject) ->
-      child_process.exec(command, (err, stdout, stderr) ->
+      child_process.exec(command, options, (err, stdout, stderr) ->
         if err
           err.stdout = stdout.toString() if stdout?
           err.stderr = stderr.toString() if stderr?
@@ -53,9 +53,13 @@ module.exports = (env) ->
       if @config.sequential
         realExec = exec
         lastAction = Promise.resolve()
-        exec = (command) ->
-          lastAction = settled(lastAction).then( -> realExec(command) )
+        exec = (command, options) ->
+          lastAction = settled(lastAction).then( -> realExec(command, options) )
           return lastAction
+
+      @execOptions =
+        shell: @config.shell
+        cwd: @config.cwd
 
 
   plugin = new ShellExecute()
@@ -66,6 +70,7 @@ module.exports = (env) ->
       @name = @config.name
       @id = @config.id
       @base = commons.base @, @config.class
+      @forceExecution = @config.forceExecution
 
       @_state = lastState?.state?.value or off
 
@@ -88,7 +93,7 @@ module.exports = (env) ->
       if not @config.getStateCommand?
         return Promise.resolve @_state
       else
-        return exec(@config.getStateCommand).then( ({stdout, stderr}) =>
+        return exec(@config.getStateCommand, plugin.execOptions).then( ({stdout, stderr}) =>
           stdout = stdout.trim()
 
           switch stdout
@@ -106,10 +111,14 @@ module.exports = (env) ->
         )
         
     changeStateTo: (state) ->
+<<<<<<< HEAD
       if @_state is state then return
+=======
+      if @_state is state and not @forceExecution then return Promise.resolve()
+>>>>>>> master
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
-      return exec(command).then( ({stdout, stderr}) =>
+      return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
         @base.error "stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       ).catch( (error) =>
@@ -161,7 +170,7 @@ module.exports = (env) ->
       super()
 
     _getUpdatedAttributeValue: () ->
-      return exec(@config.command).then( ({stdout, stderr}) =>
+      return exec(@config.command, plugin.execOptions).then( ({stdout, stderr}) =>
         if stderr.length isnt 0
           throw new Error("Error getting attribute value for #{@name}: #{stderr}")
 
@@ -210,7 +219,7 @@ module.exports = (env) ->
         )
 
     getPresence: () ->
-      return exec(@config.command).then( ({stdout, stderr}) =>
+      return exec(@config.command, plugin.execOptions).then( ({stdout, stderr}) =>
         stdout = stdout.trim()
 
         switch stdout
@@ -338,7 +347,7 @@ module.exports = (env) ->
           # just return a promise fulfilled with a description about what we would do.
           return __("would execute \"%s\"", command)
         else
-          return exec(command).then( ({stdout, stderr}) =>
+          return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
             @base.error "stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           ).catch( (error) =>

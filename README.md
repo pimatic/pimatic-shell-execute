@@ -19,6 +19,16 @@ Commands are executed parallel by default. With the optional boolean attribute `
        "plugin": "shell-execute",
        "sequential": true
     }
+    
+Optionally, it is also possible to define the *shell* to be used to execute commands. By default, `'/bin/sh'` is 
+used on UNIX, and `'cmd.exe'` on Windows. It is also possible to set the current working directory *(cwd)*. 
+By default, the current working directory of pimatic is used.
+
+    { 
+       "plugin": "shell-execute",
+       "shell": "/bin/bash",
+       "cwd": "/home/pi/scripts"
+    }
 
 ### ShellSwitch Device
 
@@ -32,7 +42,8 @@ Set the `class` attribute to `ShellSwitch`. For example:
       "onCommand": "echo on > /home/pi/switchState",
       "offCommand": "echo off > /home/pi/switchState",
       "getStateCommand": "echo /home/pi/switchState",
-      "interval": 10000
+      "interval": 10000,
+      "forceExecution": false
     }
 
 If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 

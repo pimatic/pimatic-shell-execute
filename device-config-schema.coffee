@@ -26,6 +26,12 @@ module.exports = {
         "
         type: "integer"
         default: 0
+      forceExecution:
+        description: "
+          always execute command even if switch already is set to the requested state
+        "
+        type: "boolean"
+        default: false
   }
   ShellSensor: {
     title: "ShellSensor config options"

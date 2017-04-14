@@ -49,6 +49,40 @@ Set the `class` attribute to `ShellSwitch`. For example:
 If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 
 the `getStateCommand` is executed in this ms interval to update the state of the switch. 
 
+### ShellButtons Device
+
+Set the `class` attribute to `ShellButtons`. For example:
+
+    { 
+      "id": "tv",
+      "name": "TV",
+      "class": "ShellButtons",
+      "buttons": [
+        {
+          "id": "power",
+          "text": "Power",
+          "triggerCommand": "irsend SEND_ONCE DEVICENAME KEY_POWER"
+        },
+        {
+          "id": "color",
+          "text": "color",
+          "triggerCommand": "irsend SEND_ONCE DEVICENAME KEY_INPUT"
+        },
+        {
+          "id": "vol-up",
+          "text": "Vol +",
+          "triggerCommand": "irsend SEND_ONCE DEVICENAME KEY_VOLUMEUP"
+        },
+        {
+          "id": "vol-down",
+          "text": "Vol -",
+          "triggerCommand": "irsend SEND_ONCE DEVICENAME KEY_VOLUMEDOWN"
+        }
+      ]
+    }
+
+It also supports `getStateCommand` and `interval` option for every button.
+
 ### ShellSensor Device
 
 You can define a sensor device with an attribute which gets updated with the output of shell command:

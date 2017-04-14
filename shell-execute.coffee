@@ -111,11 +111,7 @@ module.exports = (env) ->
         )
         
     changeStateTo: (state) ->
-<<<<<<< HEAD
-      if @_state is state then return
-=======
       if @_state is state and not @forceExecution then return Promise.resolve()
->>>>>>> master
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>

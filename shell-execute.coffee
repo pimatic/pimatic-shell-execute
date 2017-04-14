@@ -45,6 +45,11 @@ module.exports = (env) ->
         createCallback: (config, lastState) => return new ShellPresenceSensor(config, lastState)
       })
 
+      @framework.deviceManager.registerDeviceClass("ShellShutterController", {
+        configDef: deviceConfigDef.ShellShutterController, 
+        createCallback: (config, lastState) => return new ShellShutterController(config, lastState)
+      })
+
       if @config.sequential
         realExec = exec
         lastAction = Promise.resolve()
@@ -101,7 +106,7 @@ module.exports = (env) ->
         )
         
     changeStateTo: (state) ->
-      if @state is state then return
+      if @_state is state then return
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command).then( ({stdout, stderr}) =>
@@ -222,6 +227,72 @@ module.exports = (env) ->
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
       )
+
+  class ShellShutterController extends env.devices.ShutterController
+
+    constructor: (@config, lastState) ->
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
+      @_position= lastState?.position?.value or null
+
+      updateValue = =>
+        if @config.interval > 0
+          @_updateValueTimeout = null
+          @getPosition().finally( =>
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
+          )
+
+      super()
+      if @config.getPositionCommand?
+        updateValue()
+
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      super()
+
+    getPosition: () ->
+      if not @config.getPositionCommand?
+        return Promise.resolve @_position
+      else
+        return exec(@config.getPositionCommand).then( ({stdout, stderr}) =>
+          stdout = stdout.trim()
+
+          switch stdout
+            when "up", "on", "true", "1", "t", "o"
+              @_setPosition("up")
+              return Promise.resolve @_position
+            when "down", "off", "false", "0", "f"
+              @_setPosition("down")
+              return Promise.resolve @_position
+            when "stopped", "stop"
+              @_setPosition("down")
+              return Promise.resolve @_position
+            else
+              @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "unknown state=\"#{stdout}\"!"
+        ).catch( (error) =>
+          @base.rejectWithErrorString Promise.reject, transformError(error)
+        )
+
+    moveToPosition: (position) ->
+      if @_position is position then return
+      # and execute it.
+      command = (
+        switch position
+          when "up" then @config.upCommand
+          when "down" then @config.downCommand
+          when "stopped" then @config.stopCommand
+      )
+      return exec(command).then( ({stdout, stderr}) =>
+        @base.error "stderr output from up/down/stopCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+        @_setPosition(position)
+      ).catch( (error) =>
+        @base.rejectWithErrorString Promise.reject, transformError(error)
+      )
+
+    stop: () -> @moveToPosition("stopped")
 
   class ShellActionProvider extends env.actions.ActionProvider
 

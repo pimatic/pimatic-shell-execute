@@ -94,4 +94,33 @@ module.exports = {
         type: "integer"
         default: 10000
   }
+  ShellShutterController: {
+    title: "ShellShutterController config options"
+    type: "object"
+    extensions: ["xConfirm", "xLink"]
+    properties:
+      upCommand:
+        description: "the command to execute to move the shutter up"
+        type: "string"
+      downCommand:
+        description: "the command to execute to move the shutter down"
+        type: "string"
+      stopCommand:
+        description: "the command to execute to stop the shutter"
+        type: "string"
+      getPositionCommand:
+        description: "
+          the command to execute to get current position. 
+          Can return up/on, down/off or stopped/stop as string
+        "
+        type: "string"
+        required: false
+      interval:
+        description: "
+          the time in ms, the command gets executed to get the actual state. 
+          If 0 then the state will not updated automatically.
+        "
+        type: "integer"
+        default: 0
+  }
 }

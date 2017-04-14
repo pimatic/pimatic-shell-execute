@@ -1,6 +1,35 @@
 # #Shell device configuration options
 module.exports = {
   title: "pimatic-shell-execute device config schemas"
+  ShellButtons: {
+    title: "ShellButtons config options"
+    type: "object"
+    extensions: ["xConfirm", "xLink"]
+    properties:
+      buttons:
+        description: "Buttons to display"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+            text:
+              type: "string"
+            triggerCommand:
+              description: "the command to execute for triggering"
+              type: "string"
+            getStateCommand:
+              description: "the command to execute to get current state. Can return on/off, true/false or 1/0 as string"
+              type: "string"
+              required: false
+            interval:
+              description: "the time in ms, the command gets executed to get the actual state. If 0 then the state will not updated automatically."
+              type: "integer"
+              default: 0
+  }
   ShellSwitch: {
     title: "ShellSwitch config options"
     type: "object"

@@ -45,6 +45,11 @@ module.exports = (env) ->
         createCallback: (config, lastState) => return new ShellPresenceSensor(config, lastState)
       })
 
+      @framework.deviceManager.registerDeviceClass("ShellButtons", {
+        configDef: deviceConfigDef.ShellButtons,
+        createCallback: (config, lastState) => return new ShellButtons(config)
+      })
+
       if @config.sequential
         realExec = exec
         lastAction = Promise.resolve()
@@ -59,6 +64,61 @@ module.exports = (env) ->
 
   plugin = new ShellExecute()
 
+  class ShellButtons extends env.devices.ButtonsDevice
+
+    constructor: (@config) ->
+      @id = @config.id
+      @name = @config.name
+      @base = commons.base @, @config.class
+
+      updateValue = =>
+        if @config.interval > 0
+          @_updateValueTimeout = null
+          @getState().finally( =>
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
+          )
+
+      super(@config)
+      if @config.getStateCommand?
+        updateValue()
+
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      super()
+
+    getState: () ->
+      if not @config.getStateCommand?
+        return Promise.resolve @_state
+      else
+        return exec(@config.getStateCommand, plugin.execOptions).then( ({stdout, stderr}) =>
+          stdout = stdout.trim()
+
+          switch stdout
+            when "on", "true", "1", "t", "o"
+              @_setState(on)
+              return Promise.resolve @_state
+            when "off", "false", "0", "f"
+              @_setState(off)
+              return Promise.resolve @_state
+            else
+              @base.error "stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "unknown state=\"#{stdout}\"!"
+        ).catch( (error) =>
+          @base.rejectWithErrorString Promise.reject, transformError(error)
+        )
+        
+    buttonPressed: (buttonId) ->
+      for b in @config.buttons
+        if b.id is buttonId
+          @_lastPressedButton = b.id
+          @emit 'button', b.id
+          return exec(b.triggerCommand, plugin.execOptions).then( ({stdout, stderr}) =>
+                  @base.error "stderr output from triggerCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+                ).catch( (error) =>
+                  @base.rejectWithErrorString Promise.reject, transformError(error)
+                )
+      throw new Error("No button with the id #{buttonId} found")
+  
   class ShellSwitch extends env.devices.PowerSwitch
 
     constructor: (@config, lastState) ->

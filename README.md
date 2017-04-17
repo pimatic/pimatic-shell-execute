@@ -47,7 +47,7 @@ Set the `class` attribute to `ShellSwitch`. For example:
     }
 
 If the `getStateCommand` option is set and the `interval` option is set to a value greater than 0, 
-the `getStateCommand` is executed in this ms interval to update the state of the switch. 
+the `getStateCommand` is executed in this ms interval to update the state of the switch.
 
 ### ShellSensor Device
 
@@ -106,6 +106,28 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
       "command": "/opt/vc/bin/vcgencmd measure_temp | cut -d \"=\" -f2 | cut -d \"'\" -f1",
       "interval": 60000
     }
+
+
+### ShellButtons Device
+
+You can define a button device with buttons that trigger individual shell commands, eliminating the need for individual rules:
+
+    { 
+      "id": "tv-remote",
+      "name": "TV Remote",
+      "class": "ShellButtons",
+      "buttons": [
+        {
+          "id": "tv-power",
+          "text": "PWR",
+          "onPress": "irsend SEND_ONCE tvset KEY_POWER",
+          "confirm": true
+        }
+      ]
+    }
+    
+The given example shows the possibility to create an infrared remote in the pimatic frontend using lirc.
+The `onPress` command can be any bash command or file you may want to execute.
 
 ### ShellPresenceSensor Device
 

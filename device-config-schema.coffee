@@ -14,24 +14,55 @@ module.exports = {
         type: "string"
       getStateCommand:
         description: "
-          the command to execute to get current state. 
+          the command to execute to get current state.
           Can return on/off, true/false or 1/0 as string
         "
         type: "string"
         required: false
       interval:
         description: "
-          the time in ms, the command gets executed to get the actual state. 
+          the time in ms, the command gets executed to get the actual state.
           If 0 then the state will not updated automatically.
         "
         type: "integer"
         default: 0
       forceExecution:
         description: "
-          always execute command even if switch already is set to the requested state
+          always execute command even if switch already is set to the
+          requested state
         "
         type: "boolean"
         default: false
+  }
+  ShellButtons: {
+    title: "ShellButtons config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      buttons:
+        description: "Buttons and their actions once they are pressed"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          properties:
+            id:
+              description: "ID for the button"
+              type: "string"
+            text:
+              description: "Label for the button"
+              type: "string"
+            onPress:
+              description: "
+                Shell command to be executed, when the button is
+                pressed
+              "
+              type: "string"
+            confirm:
+              description: "Ask the user to confirm the button press"
+              type: "boolean"
+              default: false
   }
   ShellSensor: {
     title: "ShellSensor config options"
@@ -56,16 +87,23 @@ module.exports = {
         default: ""
       discrete:
         description: "
-          Should be set to true if the value does not change continuously over time.
+          Should be set to true if the value does not change continuously
+          over time.
         "
         type: "boolean"
         required: false
       command:
-        description: "the command to execute and read the attribute value from stdout"
+        description: "
+          the command to execute and read the attribute value
+          from stdout
+        "
         type: "string"
         default: "echo value"
       interval:
-        description: "the time in ms, the command gets executed to get a new sensor value"
+        description: "
+          the time in ms, the command gets executed to get a new
+          sensor value
+        "
         type: "integer"
         default: 5000
   }
@@ -96,7 +134,10 @@ module.exports = {
         type: "boolean"
         default: false
       resetTime:
-        description: "Time in milliseconds after that the presence value is reset to absent."
+        description: "
+          Time in milliseconds after that the presence value is
+          reset to absent.
+        "
         type: "integer"
         default: 10000
   }
@@ -116,14 +157,14 @@ module.exports = {
         type: "string"
       getPositionCommand:
         description: "
-          the command to execute to get current position. 
+          the command to execute to get current position.
           Can return up/on, down/off or stopped/stop as string
         "
         type: "string"
         required: false
       interval:
         description: "
-          the time in ms, the command gets executed to get the actual state. 
+          the time in ms, the command gets executed to get the actual state.
           If 0 then the state will not updated automatically.
         "
         type: "integer"

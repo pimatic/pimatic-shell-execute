@@ -16,38 +16,51 @@ module.exports = (env) ->
     )
   settled = (promise) -> Promise.settle([promise])
 
-  transformError = (error) =>
+  transformError = (error) ->
     if error.code? and error.cause?
       cause = String(error.cause).replace(/(\r\n|\n|\r)/gm," ").trim()
-      error = new Error "Command execution failed with exit code #{error.code} (#{cause})"
+      error = new Error "Command execution failed with exit code
+      #{error.code} (#{cause})"
     return error
 
   class ShellExecute extends env.plugins.Plugin
 
     init: (app, @framework, @config) =>
 
-      @framework.ruleManager.addActionProvider(new ShellActionProvider(@framework))
+      @framework.ruleManager.addActionProvider(
+        new ShellActionProvider(@framework)
+      )
 
       deviceConfigDef = require("./device-config-schema")
 
       @framework.deviceManager.registerDeviceClass("ShellSwitch", {
-        configDef: deviceConfigDef.ShellSwitch, 
-        createCallback: (config, lastState) => return new ShellSwitch(config, lastState)
+        configDef: deviceConfigDef.ShellSwitch,
+        createCallback: (config, lastState) ->
+          return new ShellSwitch(config, lastState)
+      })
+
+      @framework.deviceManager.registerDeviceClass("ShellButtons", {
+        configDef: deviceConfigDef.ShellButtons,
+        createCallback: (config, lastState) ->
+          return new ShellButtons(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellSensor", {
-        configDef: deviceConfigDef.ShellSensor, 
-        createCallback: (config, lastState) => return new ShellSensor(config, lastState)
+        configDef: deviceConfigDef.ShellSensor,
+        createCallback: (config, lastState) ->
+          return new ShellSensor(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellPresenceSensor", {
         configDef: deviceConfigDef.ShellPresenceSensor,
-        createCallback: (config, lastState) => return new ShellPresenceSensor(config, lastState)
+        createCallback: (config, lastState) ->
+          return new ShellPresenceSensor(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellShutterController", {
-        configDef: deviceConfigDef.ShellShutterController, 
-        createCallback: (config, lastState) => return new ShellShutterController(config, lastState)
+        configDef: deviceConfigDef.ShellShutterController,
+        createCallback: (config, lastState) ->
+          return new ShellShutterController(config, lastState)
       })
 
       if @config.sequential
@@ -93,7 +106,8 @@ module.exports = (env) ->
       if not @config.getStateCommand?
         return Promise.resolve @_state
       else
-        return exec(@config.getStateCommand, plugin.execOptions).then( ({stdout, stderr}) =>
+        return exec(@config.getStateCommand, plugin.execOptions).then( \
+        ({stdout, stderr}) =>
           stdout = stdout.trim()
 
           switch stdout
@@ -104,7 +118,8 @@ module.exports = (env) ->
               @_setState(off)
               return Promise.resolve @_state
             else
-              @base.error "stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              @base.error "stderr output from getStateCommand for
+                #{@name}: #{stderr}" if stderr.length isnt 0
               throw new Error "unknown state=\"#{stdout}\"!"
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, transformError(error)
@@ -115,12 +130,40 @@ module.exports = (env) ->
       # and execute it.
       command = (if state then @config.onCommand else @config.offCommand)
       return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
-        @base.error "stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+        @base.error "stderr output from on/offCommand for
+          #{@name}: #{stderr}" if stderr.length isnt 0
         @_setState(state)
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
       )
+
+  class ShellButtons extends env.devices.ButtonsDevice
   
+    constructor: (@config, lastState) ->
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
+      # pass config to parent constructor
+      super(@config)
+
+    destroy: () ->
+      super()
+
+    getButton: -> Promise.resolve(@_lastPressedButton)
+
+    buttonPressed: (buttonId) ->
+      for b in @config.buttons
+        if b.id is buttonId
+          command = b.onPress
+          return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
+            @base.error "stderr output from on/offCommand for
+              #{@name}: #{stderr}" if stderr.length isnt 0
+          ).catch( (error) =>
+            @base.rejectWithErrorString Promise.reject, transformError(error)
+          )
+      throw new Error("No button with the id #{buttonId} found")
+
   class ShellSensor extends env.devices.Sensor
 
     constructor: (@config, lastState) ->
@@ -147,9 +190,9 @@ module.exports = (env) ->
 
       # Create a getter for this attribute
       getter = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
-      @[getter] = () => 
-        if @attributeValue? then Promise.resolve(@attributeValue) 
-        else @_getUpdatedAttributeValue() 
+      @[getter] = () =>
+        if @attributeValue? then Promise.resolve(@attributeValue)
+        else @_getUpdatedAttributeValue()
 
       updateValue = =>
         if @config.interval > 0
@@ -166,17 +209,20 @@ module.exports = (env) ->
       super()
 
     _getUpdatedAttributeValue: () ->
-      return exec(@config.command, plugin.execOptions).then( ({stdout, stderr}) =>
-        if stderr.length isnt 0
-          throw new Error("Error getting attribute value for #{@name}: #{stderr}")
+      return exec(@config.command, plugin.execOptions).then(
+        ({stdout, stderr}) =>
+          if stderr.length isnt 0
+            throw new Error("Error getting attribute value
+              for #{@name}: #{stderr}")
 
-        @attributeValue = stdout.trim()
-        if @config.attributeType is "number" then @attributeValue = parseFloat(@attributeValue)
-        @emit @config.attributeName, @attributeValue
-        return @attributeValue
-      ).catch( (error) =>
-        @base.rejectWithErrorString Promise.reject, transformError(error)
-      )
+          @attributeValue = stdout.trim()
+          if @config.attributeType is "number" then \
+            @attributeValue = parseFloat(@attributeValue)
+          @emit @config.attributeName, @attributeValue
+          return @attributeValue
+        ).catch( (error) =>
+          @base.rejectWithErrorString Promise.reject, transformError(error)
+        )
 
   class ShellPresenceSensor extends env.devices.PresenceSensor
 
@@ -215,23 +261,25 @@ module.exports = (env) ->
         )
 
     getPresence: () ->
-      return exec(@config.command, plugin.execOptions).then( ({stdout, stderr}) =>
-        stdout = stdout.trim()
+      return exec(@config.command, plugin.execOptions).then(
+        ({stdout, stderr}) =>
+          stdout = stdout.trim()
 
-        switch stdout
-          when "present", "true", "1", "t"
-            @_setPresence yes
-            @_triggerAutoReset()
-            return Promise.resolve yes
-          when "absent", "false", "0", "f"
-            @_setPresence no
-            return Promise.resolve no
-          else
-            @base.error "stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
-            throw new Error "unknown state=\"#{stdout}\"!"
-      ).catch( (error) =>
-        @base.rejectWithErrorString Promise.reject, transformError(error)
-      )
+          switch stdout
+            when "present", "true", "1", "t"
+              @_setPresence yes
+              @_triggerAutoReset()
+              return Promise.resolve yes
+            when "absent", "false", "0", "f"
+              @_setPresence no
+              return Promise.resolve no
+            else
+              @base.error "stderr output from presence command
+                for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "unknown state=\"#{stdout}\"!"
+        ).catch( (error) =>
+          @base.rejectWithErrorString Promise.reject, transformError(error)
+        )
 
   class ShellShutterController extends env.devices.ShutterController
 
@@ -275,7 +323,8 @@ module.exports = (env) ->
               @_setPosition("down")
               return Promise.resolve @_position
             else
-              @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              @base.error "stderr output from getPositionCommand
+                for #{@name}: #{stderr}" if stderr.length isnt 0
               throw new Error "unknown state=\"#{stdout}\"!"
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, transformError(error)
@@ -291,7 +340,8 @@ module.exports = (env) ->
           when "stopped" then @config.stopCommand
       )
       return exec(command).then( ({stdout, stderr}) =>
-        @base.error "stderr output from up/down/stopCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+        @base.error "stderr output from up/down/stopCommand
+          for #{@name}: #{stderr}" if stderr.length isnt 0
         @_setPosition(position)
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
@@ -311,8 +361,8 @@ module.exports = (env) ->
       commandTokens = null
       fullMatch = no
 
-      setCommand = (m, tokens) => commandTokens = tokens
-      onEnd = => fullMatch = yes
+      setCommand = (m, tokens) -> commandTokens = tokens
+      onEnd = -> fullMatch = yes
       
       m = M(input, context)
         .match("execute ")
@@ -338,13 +388,16 @@ module.exports = (env) ->
     This function handles action in the form of `execute "some string"`
     ###
     executeAction: (simulate) =>
-      @framework.variableManager.evaluateStringExpression(@commandTokens).then( (command) =>
+      @framework.variableManager.evaluateStringExpression(@commandTokens) \
+      .then( (command) =>
         if simulate
-          # just return a promise fulfilled with a description about what we would do.
+          # just return a promise fulfilled with a description about
+          # what we would do.
           return __("would execute \"%s\"", command)
         else
           return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
-            @base.error "stderr output from command #{command}: #{stderr}" if stderr.length isnt 0
+            @base.error "stderr output from command
+              #{command}: #{stderr}" if stderr.length isnt 0
             return __("executed \"%s\": %s", command, stdout.trim())
           ).catch( (error) =>
             @base.rejectWithErrorString Promise.reject, transformError(error)

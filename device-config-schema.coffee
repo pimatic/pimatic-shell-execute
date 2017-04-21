@@ -33,6 +33,36 @@ module.exports = {
         type: "boolean"
         default: false
   }
+  ShellButtons: {
+    title: "ShellButtons config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      buttons:
+        description: "Buttons and their actions once they are pressed"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          properties:
+            id:
+              description: "ID for the button"
+              type: "string"
+            text:
+              description: "Label for the button"
+              type: "string"
+            onPress:
+              description: "
+                Shell command to be executed, when the button is
+                pressed
+              "
+              type: "string"
+            confirm:
+              description: "Ask the user to confirm the button press"
+              type: "boolean"
+              default: false
+  }
   ShellSensor: {
     title: "ShellSensor config options"
     type: "object"
@@ -96,7 +126,10 @@ module.exports = {
         type: "boolean"
         default: false
       resetTime:
-        description: "Time in milliseconds after that the presence value is reset to absent."
+        description: "
+          Time in milliseconds after that the presence value is
+          reset to absent.
+        "
         type: "integer"
         default: 10000
   }

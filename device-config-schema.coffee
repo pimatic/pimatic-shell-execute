@@ -62,6 +62,36 @@ module.exports = {
         type: "boolean"
         default: false
   }
+  ShellButtons: {
+    title: "ShellButtons config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      buttons:
+        description: "Buttons and their actions once they are pressed"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          properties:
+            id:
+              description: "ID for the button"
+              type: "string"
+            text:
+              description: "Label for the button"
+              type: "string"
+            onPress:
+              description: "
+                Shell command to be executed, when the button is
+                pressed
+              "
+              type: "string"
+            confirm:
+              description: "Ask the user to confirm the button press"
+              type: "boolean"
+              default: false
+  }
   ShellSensor: {
     title: "ShellSensor config options"
     type: "object"
@@ -125,8 +155,40 @@ module.exports = {
         type: "boolean"
         default: false
       resetTime:
-        description: "Time in milliseconds after that the presence value is reset to absent."
+        description: "
+          Time in milliseconds after that the presence value is
+          reset to absent.
+        "
         type: "integer"
         default: 10000
+  }
+  ShellShutterController: {
+    title: "ShellShutterController config options"
+    type: "object"
+    extensions: ["xConfirm", "xLink"]
+    properties:
+      upCommand:
+        description: "the command to execute to move the shutter up"
+        type: "string"
+      downCommand:
+        description: "the command to execute to move the shutter down"
+        type: "string"
+      stopCommand:
+        description: "the command to execute to stop the shutter"
+        type: "string"
+      getPositionCommand:
+        description: "
+          the command to execute to get current position. 
+          Can return up/on, down/off or stopped/stop as string
+        "
+        type: "string"
+        required: false
+      interval:
+        description: "
+          the time in ms, the command gets executed to get the actual state. 
+          If 0 then the state will not updated automatically.
+        "
+        type: "integer"
+        default: 0
   }
 }

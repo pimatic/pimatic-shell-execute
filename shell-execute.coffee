@@ -16,7 +16,7 @@ module.exports = (env) ->
     )
   settled = (promise) -> Promise.settle([promise])
 
-  transformError = (error) =>
+  transformError = (error) ->
     if error.code? and error.cause?
       cause = String(error.cause).replace(/(\r\n|\n|\r)/gm," ").trim()
       error = new Error "Command execution failed with exit code #{error.code} (#{cause})"
@@ -35,6 +35,12 @@ module.exports = (env) ->
         createCallback: (config, lastState) => return new ShellSwitch(config, lastState)
       })
 
+      @framework.deviceManager.registerDeviceClass("ShellButtons", {
+        configDef: deviceConfigDef.ShellButtons,
+        createCallback: (config, lastState) ->
+          return new ShellButtons(config, lastState)
+      })
+
       @framework.deviceManager.registerDeviceClass("ShellSensor", {
         configDef: deviceConfigDef.ShellSensor, 
         createCallback: (config, lastState) => return new ShellSensor(config, lastState)
@@ -48,6 +54,11 @@ module.exports = (env) ->
       @framework.deviceManager.registerDeviceClass("ShellButtons", {
         configDef: deviceConfigDef.ShellButtons,
         createCallback: (config, lastState) => return new ShellButtons(config)
+      })
+      
+      @framework.deviceManager.registerDeviceClass("ShellShutterController", {
+        configDef: deviceConfigDef.ShellShutterController, 
+        createCallback: (config, lastState) => return new ShellShutterController(config, lastState)
       })
 
       if @config.sequential
@@ -175,7 +186,34 @@ module.exports = (env) ->
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
       )
-  
+
+  class ShellButtons extends env.devices.ButtonsDevice
+
+    constructor: (@config, lastState) ->
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
+      # pass config to parent constructor
+      super(@config)
+
+    destroy: () ->
+      super()
+
+    getButton: -> Promise.resolve(@_lastPressedButton)
+
+    buttonPressed: (buttonId) ->
+      for b in @config.buttons
+        if b.id is buttonId
+          command = b.onPress
+          return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
+            @base.error "stderr output from on/offCommand for
+              #{@name}: #{stderr}" if stderr.length isnt 0
+          ).catch( (error) =>
+            @base.rejectWithErrorString Promise.reject, transformError(error)
+          )
+      throw new Error("No button with the id #{buttonId} found")
+
   class ShellSensor extends env.devices.Sensor
 
     constructor: (@config, lastState) ->
@@ -287,6 +325,72 @@ module.exports = (env) ->
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
       )
+
+  class ShellShutterController extends env.devices.ShutterController
+
+    constructor: (@config, lastState) ->
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
+      @_position= lastState?.position?.value or null
+
+      updateValue = =>
+        if @config.interval > 0
+          @_updateValueTimeout = null
+          @getPosition().finally( =>
+            @_updateValueTimeout = setTimeout(updateValue, @config.interval)
+          )
+
+      super()
+      if @config.getPositionCommand?
+        updateValue()
+
+    destroy: () ->
+      clearTimeout @_updateValueTimeout if @_updateValueTimeout?
+      super()
+
+    getPosition: () ->
+      if not @config.getPositionCommand?
+        return Promise.resolve @_position
+      else
+        return exec(@config.getPositionCommand).then( ({stdout, stderr}) =>
+          stdout = stdout.trim()
+
+          switch stdout
+            when "up", "on", "true", "1", "t", "o"
+              @_setPosition("up")
+              return Promise.resolve @_position
+            when "down", "off", "false", "0", "f"
+              @_setPosition("down")
+              return Promise.resolve @_position
+            when "stopped", "stop"
+              @_setPosition("down")
+              return Promise.resolve @_position
+            else
+              @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              throw new Error "unknown state=\"#{stdout}\"!"
+        ).catch( (error) =>
+          @base.rejectWithErrorString Promise.reject, transformError(error)
+        )
+
+    moveToPosition: (position) ->
+      if @_position is position then return
+      # and execute it.
+      command = (
+        switch position
+          when "up" then @config.upCommand
+          when "down" then @config.downCommand
+          when "stopped" then @config.stopCommand
+      )
+      return exec(command).then( ({stdout, stderr}) =>
+        @base.error "stderr output from up/down/stopCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+        @_setPosition(position)
+      ).catch( (error) =>
+        @base.rejectWithErrorString Promise.reject, transformError(error)
+      )
+
+    stop: () -> @moveToPosition("stopped")
 
   class ShellActionProvider extends env.actions.ActionProvider
 

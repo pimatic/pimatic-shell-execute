@@ -272,7 +272,7 @@ module.exports = (env) ->
               @_setPosition("down")
               return Promise.resolve @_position
             when "stopped", "stop"
-              @_setPosition("down")
+              @_setPosition("stopped")
               return Promise.resolve @_position
             else
               @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}" if stderr.length isnt 0
@@ -282,7 +282,8 @@ module.exports = (env) ->
         )
 
     moveToPosition: (position) ->
-      if @_position is position then return
+      if @_position is position
+        return Promise.resolve()
       # and execute it.
       command = (
         switch position

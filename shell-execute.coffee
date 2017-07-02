@@ -16,7 +16,7 @@ module.exports = (env) ->
     )
   settled = (promise) -> Promise.settle([promise])
 
-  transformError = (error) =>
+  transformError = (error) ->
     if error.code? and error.cause?
       cause = String(error.cause).replace(/(\r\n|\n|\r)/gm," ").trim()
       error = new Error "Command execution failed with exit code #{error.code} (#{cause})"
@@ -33,6 +33,12 @@ module.exports = (env) ->
       @framework.deviceManager.registerDeviceClass("ShellSwitch", {
         configDef: deviceConfigDef.ShellSwitch, 
         createCallback: (config, lastState) => return new ShellSwitch(config, lastState)
+      })
+
+      @framework.deviceManager.registerDeviceClass("ShellButtons", {
+        configDef: deviceConfigDef.ShellButtons,
+        createCallback: (config, lastState) ->
+          return new ShellButtons(config, lastState)
       })
 
       @framework.deviceManager.registerDeviceClass("ShellSensor", {
@@ -120,7 +126,34 @@ module.exports = (env) ->
       ).catch( (error) =>
         @base.rejectWithErrorString Promise.reject, transformError(error)
       )
-  
+
+  class ShellButtons extends env.devices.ButtonsDevice
+
+    constructor: (@config, lastState) ->
+      @name = @config.name
+      @id = @config.id
+      @base = commons.base @, @config.class
+
+      # pass config to parent constructor
+      super(@config)
+
+    destroy: () ->
+      super()
+
+    getButton: -> Promise.resolve(@_lastPressedButton)
+
+    buttonPressed: (buttonId) ->
+      for b in @config.buttons
+        if b.id is buttonId
+          command = b.onPress
+          return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
+            @base.error "stderr output from on/offCommand for
+              #{@name}: #{stderr}" if stderr.length isnt 0
+          ).catch( (error) =>
+            @base.rejectWithErrorString Promise.reject, transformError(error)
+          )
+      throw new Error("No button with the id #{buttonId} found")
+
   class ShellSensor extends env.devices.Sensor
 
     constructor: (@config, lastState) ->

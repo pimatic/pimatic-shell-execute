@@ -13,7 +13,10 @@ You can load the plugin by editing your `config.json` to include:
        "plugin": "shell-execute"
     }
 
-Commands are executed parallel by default. With the optional boolean attribute `sequential`set to `true`shell commands are executed sequentially.
+Commands are executed parallel by default. With the optional boolean attribute 
+`sequential`set to `true` all shell commands are executed sequentially. This option 
+should be used mindfully it can dramatically slow down the execution of command and
+yield other side effects like execution timeouts. 
 
     { 
        "plugin": "shell-execute",
@@ -146,3 +149,18 @@ automatically reset to "absent" after some time. For this you can set to `autoRe
     }
 
 For device configuration options see the [device-config-schema](device-config-schema.coffee) file.
+
+Troubleshooting
+-------
+
+### Execution of Long Running Commands
+
+Long running commands should be avoided as they may block pimatic or yield errors when the `timeout` value
+in the plugin configuration is set to kill pending processes. If you want to execute a long running command 
+though, write a wrapper script which send the command to the background. You can also use a wrapper
+ command which detaches the process from the controlling terminal and send it to the background. 
+  * Linux: `nohup <command> &` or `nohup bash -c "<command1>; <command2>" &` 
+    if you need to execute multiple commands
+  * Windows: `start -b <command>`. 
+  
+  

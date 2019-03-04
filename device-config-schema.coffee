@@ -32,6 +32,12 @@ module.exports = {
         "
         type: "boolean"
         default: false
+      evaluateCommandStrings:
+        description: "
+            treat commands strings as pimatic expressions
+          "
+        type: "boolean"
+        default: false
   }
   ShellButtons: {
     title: "ShellButtons config options"
@@ -62,6 +68,12 @@ module.exports = {
               description: "Ask the user to confirm the button press"
               type: "boolean"
               default: false
+      evaluateCommandStrings:
+        description: "
+            treat commands strings as pimatic expressions
+          "
+        type: "boolean"
+        default: false
   }
   ShellSensor: {
     title: "ShellSensor config options"
@@ -98,6 +110,12 @@ module.exports = {
         description: "the time in ms, the command gets executed to get a new sensor value"
         type: "integer"
         default: 5000
+      evaluateCommandStrings:
+        description: "
+            treat commands strings as pimatic expressions
+          "
+        type: "boolean"
+        default: false
   }
   ShellPresenceSensor: {
     title: "ShellPresenceSensor config options"
@@ -132,6 +150,12 @@ module.exports = {
         "
         type: "integer"
         default: 10000
+      evaluateCommandStrings:
+        description: "
+            treat commands strings as pimatic expressions
+          "
+        type: "boolean"
+        default: false
   }
   ShellShutterController: {
     title: "ShellShutterController config options"
@@ -161,5 +185,11 @@ module.exports = {
         "
         type: "integer"
         default: 0
+      evaluateCommandStrings:
+        description: "
+            treat commands strings as pimatic expressions
+          "
+        type: "boolean"
+        default: false
   }
 }

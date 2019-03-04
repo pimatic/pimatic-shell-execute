@@ -145,6 +145,8 @@ module.exports = (env) ->
     buttonPressed: (buttonId) ->
       for b in @config.buttons
         if b.id is buttonId
+          @_lastPressedButton = b.id
+          @emit 'button', b.id
           command = b.onPress
           return exec(command, plugin.execOptions).then( ({stdout, stderr}) =>
             @base.error "stderr output from on/offCommand for

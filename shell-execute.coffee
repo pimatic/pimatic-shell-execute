@@ -53,7 +53,7 @@ module.exports = (env) ->
       @children = @children.filter (process) -> process.pid isnt child.pid
 
     _exec: (command) ->
-      @logger.debug "Exec: #{command}"
+      @logger.debug "Exec:", command.replace(/([^%])(%[^%])/g, "$1%$2")
       return new Promise( (resolve, reject) =>
         child = child_process.exec(command, @options, (err, stdout, stderr) =>
           @_removeChild child

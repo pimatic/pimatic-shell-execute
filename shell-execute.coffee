@@ -7,13 +7,9 @@ module.exports = (env) ->
   lastCommand = Promise.resolve()
 
   transformError = (error) ->
-#    for x in Object.keys(error)
-#      console.log("--------------p", x, error[x])
-#    console.log("--------------message", error.message)
-#    console.log("--------------name", error.name)
     e = null
     if 'code' of error and error.code?
-        msg = __("Command failed with exit code %s", error.code)
+      msg = __("Command failed with exit code %s", error.code)
     else if 'killed' of error and 'signal' of error and error.killed?
       msg = __("Command exited due to receipt of signal %s", error.signal)
     else
@@ -71,8 +67,11 @@ module.exports = (env) ->
         @children.push child
         @logger.debug "Child processes pending: #{@children.length}"
         child.once 'close', (code, signal) =>
-          @logger.debug "Child process #{child.pid} exited with code #{code}" if code?
-          @logger.debug "Child process #{child.pid} exited due to receipt of signal #{signal}" if signal?
+          if code?
+            @logger.debug "Child process #{child.pid} exited with code #{code}"
+          else if signal?
+            @logger.debug
+            "Child process #{child.pid} exited due to receipt of signal #{signal}"
 
         return child
       )
@@ -204,7 +203,8 @@ module.exports = (env) ->
                 @_setState(off)
                 return Promise.resolve @_state
               else
-                @base.error "stderr output from getStateCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+                if stderr.length isnt 0
+                  @base.error "stderr output from getStateCommand for #{@name}: #{stderr}"
                 throw new Error "unknown state=\"#{stdout}\"!"
           ).catch( (error) =>
             @base.error error
@@ -218,7 +218,8 @@ module.exports = (env) ->
         # execute state change.
         command = (if state then @config.onCommand else @config.offCommand)
         return @helper.exec(command).then( ({stdout, stderr}) =>
-          @base.error "stderr output from on/offCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+          if stderr.length isnt 0
+            @base.error "stderr output from on/offCommand for #{@name}: #{stderr}"
           @_setState(state)
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, error
@@ -385,7 +386,8 @@ module.exports = (env) ->
               @_setPresence no
               return Promise.resolve no
             else
-              @base.error "stderr output from presence command for #{@name}: #{stderr}" if stderr.length isnt 0
+              if stderr.length isnt 0
+                @base.error "stderr output from presence command for #{@name}: #{stderr}"
               throw new Error "unknown state=\"#{stdout}\"!"
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, error
@@ -441,7 +443,8 @@ module.exports = (env) ->
               @_setPosition("stopped")
               return Promise.resolve @_position
             else
-              @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+              if stderr.length isnt 0
+                @base.error "stderr output from getPositionCommand for #{@name}: #{stderr}"
               throw new Error "unknown state=\"#{stdout}\"!"
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, error
@@ -459,7 +462,8 @@ module.exports = (env) ->
             when "stopped" then @config.stopCommand
         )
         return @helper.exec(command).then( ({stdout, stderr}) =>
-          @base.error "stderr output from up/down/stopCommand for #{@name}: #{stderr}" if stderr.length isnt 0
+          if stderr.length isnt 0
+            @base.error "stderr output from up/down/stopCommand for #{@name}: #{stderr}"
           @_setPosition(position)
         ).catch( (error) =>
           @base.rejectWithErrorString Promise.reject, error

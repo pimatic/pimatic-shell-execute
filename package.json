@@ -12,6 +12,13 @@
     "shell-execute-config-schema.coffee",
     "LICENSE"
   ],
+  "keywords": [
+    "pimatic",
+    "pimatic-plugin",
+    "shell",
+    "command-execution",
+    "scripting"
+  ],
   "version": "0.9.11",
   "homepage": "http://github.com/pimatic/pimatic",
   "repository": {
@@ -20,7 +27,7 @@
   },
   "configSchema": "shell-execute-config-schema.coffee",
   "dependencies": {
-    "pimatic-plugin-commons": "^0.9.3"
+    "pimatic-plugin-commons": "^0.9.10"
   },
   "peerDependencies": {
     "pimatic": "0.9.*"

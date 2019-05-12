@@ -32,6 +32,17 @@ By default, the current working directory of pimatic is used.
        "shell": "/bin/bash",
        "cwd": "/home/pi/scripts"
     }
+    
+By default, processes which did not terminate with 15 seconds will be terminated forcefully. The
+timeout value given in milliseconds can be set as shown below. Note, long running processes 
+may cause blocking situations in pimatic and may lockup system resources. 
+If you need to start long running processes, see section on Trouble Shooting below.
+
+    { 
+       "plugin": "shell-execute",
+       "timeout": 20000
+    }
+
 
 ### ShellSwitch Device
 
@@ -54,7 +65,8 @@ the `getStateCommand` is executed in this ms interval to update the state of the
 
 ### ShellSensor Device
 
-You can define a sensor device with an attribute which gets updated with the output of shell command:
+You can define a sensor device with an attribute which gets 
+ updated with the output of shell command:
 
     { 
       "id": "temperature",
@@ -67,7 +79,8 @@ You can define a sensor device with an attribute which gets updated with the out
       "command": "echo 42.0"
     }
 
-If you're running pimatic on a RaspberryPi, you can use the following sensors for a quick overview of your system health:
+If you're running pimatic on a RaspberryPi, you can use the 
+ following sensors for a quick overview of your system health:
 
     {
       "id": "wlan-strength",
@@ -113,7 +126,8 @@ If you're running pimatic on a RaspberryPi, you can use the following sensors fo
 
 ### ShellButtons Device
 
-You can define a button device with buttons that trigger individual shell commands, eliminating the need for individual rules:
+You can define a button device with buttons that trigger individual shell commands, 
+ eliminating the need for individual rules:
 
     { 
       "id": "tv-remote",
@@ -129,8 +143,9 @@ You can define a button device with buttons that trigger individual shell comman
       ]
     }
     
-The given example shows the possibility to create an infrared remote in the pimatic frontend using lirc.
-The `onPress` command can be any bash command or file you may want to execute.
+The given example shows the possibility to create an infrared remote in the pimatic frontend 
+ using the lirc plugin. The `onPress` command can be any bash command or file you may 
+ want to execute.
 
 ### ShellPresenceSensor Device
 
@@ -156,11 +171,13 @@ Troubleshooting
 ### Execution of Long Running Commands
 
 Long running commands should be avoided as they may block pimatic or yield errors when the `timeout` value
-in the plugin configuration is set to kill pending processes. If you want to execute a long running command 
-though, write a wrapper script which send the command to the background. You can also use a wrapper
- command which detaches the process from the controlling terminal and send it to the background. 
+in the plugin configuration is set to kill pending processes which is the default. 
+
+If you want to execute a long running command though, write a wrapper script which sends the command
+ to the background. You can also use a wrapper command which detaches the process from
+ the controlling terminal and send it to the background. 
   * Linux: `nohup <command> &` or `nohup bash -c "<command1>; <command2>" &` 
     if you need to execute multiple commands
-  * Windows: `start -b <command>`. 
+  * Windows: `start -b <command>` 
   
   
